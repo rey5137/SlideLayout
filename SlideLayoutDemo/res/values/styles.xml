@@ -1,0 +1,87 @@
+<resources xmlns:android="http://schemas.android.com/apk/res/android">
+    <style name="AppBaseTheme" parent="android:Theme.Light">   
+    </style>
+
+    <style name="AppTheme" parent="AppBaseTheme">
+    </style>
+    
+    <style name="SlideLayoutStyleDemo" parent="@style/SlideLayoutStyleDefault">
+        <item name="dragEnable">true</item>
+        <item name="leftMenuStyle">@style/LeftSlideMenuStyleDemo</item>        
+        <item name="rightMenuStyle">@style/RightSlideMenuStyleDemo</item>  
+        <item name="topMenuStyle">@style/TopSlideMenuStyleDemo</item>
+        <item name="bottomMenuStyle">@style/BottomSlideMenuStyleDemo</item>
+        <item name="menuStyle">@style/SlideMenuStyleDemo</item>
+    </style>
+    
+    <style name="SlideMenuStyleDemo" parent="@style/SlideMenuStyleDefault">
+        <item name="overDrag">false</item>
+        <item name="menuBorder">48dp</item>
+        <item name="menuOverDragBorder">0dp</item>
+        <item name="slideRatio">0.5</item>
+        <item name="menuShadow">8dp</item>
+        <item name="dragEdge">48dp</item>
+        <item name="touchSlop">16dp</item>
+        <item name="minAlpha">0.3</item>
+        <item name="velocitySlop">500</item>
+        <item name="animDuration">800</item>
+        <item name="closeEdge">0.75</item>
+    </style>
+    
+    <style name="LeftSlideMenuStyleDemo" parent="@style/SlideMenuStyleDefault">
+        <item name="overDrag">true</item>
+        <item name="menuBorder">96dp</item>
+        <item name="menuOverDragBorder">48dp</item>
+        <item name="slideRatio">1</item>
+        <item name="menuShadow">8dp</item>
+        <item name="dragEdge">48dp</item>
+        <item name="touchSlop">16dp</item>
+        <item name="minAlpha">0.3</item>
+        <item name="velocitySlop">500</item>
+        <item name="animDuration">800</item>
+        <item name="closeEdge">0.75</item>
+    </style>
+    
+    <style name="RightSlideMenuStyleDemo" parent="@style/SlideMenuStyleDefault">
+        <item name="overDrag">true</item>
+        <item name="menuBorder">96dp</item>
+        <item name="menuOverDragBorder">48dp</item>
+        <item name="slideRatio">0.5</item>
+        <item name="menuShadow">8dp</item>
+        <item name="dragEdge">48dp</item>
+        <item name="touchSlop">16dp</item>
+        <item name="minAlpha">0.3</item>
+        <item name="velocitySlop">500</item>
+        <item name="animDuration">800</item>
+        <item name="closeEdge">0.75</item>
+    </style>
+    
+    <style name="TopSlideMenuStyleDemo" parent="@style/SlideMenuStyleDefault">
+        <item name="overDrag">true</item>
+        <item name="menuBorder">96dp</item>
+        <item name="menuOverDragBorder">48dp</item>
+        <item name="slideRatio">0</item>
+        <item name="menuShadow">8dp</item>
+        <item name="dragEdge">48dp</item>
+        <item name="touchSlop">16dp</item>
+        <item name="minAlpha">0.3</item>
+        <item name="velocitySlop">500</item>
+        <item name="animDuration">800</item>
+        <item name="closeEdge">0.75</item>
+    </style>
+    
+    <style name="BottomSlideMenuStyleDemo" parent="@style/SlideMenuStyleDefault">
+        <item name="overDrag">true</item>
+        <item name="menuBorder">96dp</item>
+        <item name="menuOverDragBorder">48dp</item>
+        <item name="slideRatio">-0.5</item>
+        <item name="menuShadow">8dp</item>
+        <item name="dragEdge">48dp</item>
+        <item name="touchSlop">16dp</item>
+        <item name="minAlpha">0.3</item>
+        <item name="velocitySlop">500</item>
+        <item name="animDuration">800</item>
+        <item name="closeEdge">0.75</item>
+    </style>
+
+</resources>

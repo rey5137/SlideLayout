@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+        
+    <declare-styleable name="SlideLayoutStyle">
+        <attr name="dragEnable" format="boolean"/>  
+        <attr name="contentChild" format="integer"/>        
+        <attr name="leftMenuChild" format="integer"/>        
+        <attr name="rightMenuChild" format="integer"/>                
+        <attr name="topMenuChild" format="integer"/>        
+        <attr name="bottomMenuChild" format="integer"/>
+        <attr name="leftMenuStyle" format="reference"/>
+        <attr name="rightMenuStyle" format="reference"/>
+        <attr name="topMenuStyle" format="reference"/>
+        <attr name="bottomMenuStyle" format="reference"/>   
+        <attr name="menuStyle" format="reference"/>   
+    </declare-styleable>
+    
+    <declare-styleable name="SlideMenuStyle">
+        <attr name="overDrag" format="boolean"/>
+        <attr name="menuBorder" format="float|dimension"/>
+        <attr name="menuOverDragBorder" format="float|dimension"/>        
+        <attr name="slideRatio" format="float"/>
+        <attr name="menuShadow" format="dimension"/>      
+        <attr name="dragEdge" format="integer|dimension">
+            <enum name="match_content" value="-1" />
+        </attr>
+        <attr name="touchSlop" format="dimension"/>
+        <attr name="minAlpha" format="float"/>   
+        <attr name="velocitySlop" format="float"/>
+        <attr name="closeEdge" format="float|dimension"/>        
+        <attr name="animDuration" format="integer"/>
+    </declare-styleable>
+</resources>
