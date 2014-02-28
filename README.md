@@ -129,3 +129,16 @@ Declare the following view on your xml layout:
 * `bottomMenuChild`:  index of bottom menu in SlideLayout
 
 The order of menu and content view in SlideLayout decides menu will be above (Google style) or below (Facebook style) content view.
+
+Developed By
+------------
+
+* Rey Pham - <pea5137@gmail.com>
+
+Credits
+------------
+* SlideLayout is inspired by [Cyril Mottier's post](http://cyrilmottier.com/2012/05/22/the-making-of-prixing-fly-in-app-menu-part-1/ )
+
+Contributing
+------------
+Want to contribute? You are welcome!
