@@ -1,0 +1,228 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset='utf-8'>
+    <meta http-equiv="X-UA-Compatible" content="chrome=1">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+    <link href='https://fonts.googleapis.com/css?family=Architects+Daughter' rel='stylesheet' type='text/css'>
+    <link rel="stylesheet" type="text/css" href="stylesheets/stylesheet.css" media="screen" />
+    <link rel="stylesheet" type="text/css" href="stylesheets/pygment_trac.css" media="screen" />
+    <link rel="stylesheet" type="text/css" href="stylesheets/print.css" media="print" />
+
+    <!--[if lt IE 9]>
+    <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+
+    <title>Slidelayout by rey5137</title>
+  </head>
+
+  <body>
+    <header>
+      <div class="inner">
+        <h1>Slidelayout</h1>
+        <h2>An Open Source Android library that allows developers to easily add SlideMenu feature. It supports 4 menu at each side of content view concurrently.</h2>
+        <a href="https://github.com/rey5137/SlideLayout" class="button"><small>View project on</small>GitHub</a>
+      </div>
+    </header>
+
+    <div id="content-wrapper">
+      <div class="inner clearfix">
+        <section id="main-content">
+          <h1>
+<a name="slidelayout" class="anchor" href="#slidelayout"><span class="octicon octicon-link"></span></a>SlideLayout</h1>
+
+<p>SlideLayout is an Open Source Android library that allows developers to easily add SlideMenu feature. It supports 4 menu at each side of content view concurrently.</p>
+
+<p>A demo app can be found on <a href="https://play.google.com/store/apps/details?id=com.rey.slidelayoutdemo">Google PlayStore</a></p>
+
+<table>
+<thead><tr>
+<th><img src="/screenshot/screenshot_2.png" alt=""></th>
+<th><img src="/screenshot/screenshot_3.png" alt=""></th>
+</tr></thead>
+<tbody><tr>
+<td><img src="/screenshot/screenshot_1.png" alt=""></td>
+<td><img src="/screenshot/screenshot_4.png" alt=""></td>
+</tr></tbody>
+</table><p>I would appreciate any kind of help to improve this library. Thanks</p>
+
+<h2>
+<a name="usage" class="anchor" href="#usage"><span class="octicon octicon-link"></span></a>Usage</h2>
+
+<p>You must declare SlideLayoutStyle in styles.xml:</p>
+
+<div class="highlight highlight-xml"><pre>    <span class="nt">&lt;style</span> <span class="na">name=</span><span class="s">"SlideLayoutStyleDemo"</span> <span class="na">parent=</span><span class="s">"@style/SlideLayoutStyleDefault"</span><span class="nt">&gt;</span>
+        <span class="nt">&lt;item</span> <span class="na">name=</span><span class="s">"dragEnable"</span><span class="nt">&gt;</span>true<span class="nt">&lt;/item&gt;</span>
+        <span class="nt">&lt;item</span> <span class="na">name=</span><span class="s">"leftMenuStyle"</span><span class="nt">&gt;</span>@style/LeftSlideMenuStyleDemo<span class="nt">&lt;/item&gt;</span>        
+        <span class="nt">&lt;item</span> <span class="na">name=</span><span class="s">"rightMenuStyle"</span><span class="nt">&gt;</span>@style/RightSlideMenuStyleDemo<span class="nt">&lt;/item&gt;</span>  
+        <span class="nt">&lt;item</span> <span class="na">name=</span><span class="s">"topMenuStyle"</span><span class="nt">&gt;</span>@style/TopSlideMenuStyleDemo<span class="nt">&lt;/item&gt;</span>
+        <span class="nt">&lt;item</span> <span class="na">name=</span><span class="s">"bottomMenuStyle"</span><span class="nt">&gt;</span>@style/BottomSlideMenuStyleDemo<span class="nt">&lt;/item&gt;</span>
+        <span class="nt">&lt;item</span> <span class="na">name=</span><span class="s">"menuStyle"</span><span class="nt">&gt;</span>@style/SlideMenuStyleDemo<span class="nt">&lt;/item&gt;</span>
+    <span class="nt">&lt;/style&gt;</span>
+</pre></div>
+
+<h6>
+<a name="attributes" class="anchor" href="#attributes"><span class="octicon octicon-link"></span></a>Attributes</h6>
+
+<ul>
+<li>
+<code>dragEnable</code>: enable drag menu from the side of content view. If disable, can only open menu by calling function</li>
+</ul><div class="highlight highlight-java"><pre>    <span class="kd">public</span> <span class="kt">void</span> <span class="nf">openLeftMenu</span><span class="o">(</span><span class="kt">boolean</span> <span class="n">animation</span><span class="o">);</span>
+
+    <span class="kd">public</span> <span class="kt">void</span> <span class="nf">openRightMenu</span><span class="o">(</span><span class="kt">boolean</span> <span class="n">animation</span><span class="o">);</span>
+
+    <span class="kd">public</span> <span class="kt">void</span> <span class="nf">openTopMenu</span><span class="o">(</span><span class="kt">boolean</span> <span class="n">animation</span><span class="o">);</span>
+
+    <span class="kd">public</span> <span class="kt">void</span> <span class="nf">openBottomMenu</span><span class="o">(</span><span class="kt">boolean</span> <span class="n">animation</span><span class="o">);</span>
+</pre></div>
+
+<ul>
+<li>
+<code>leftMenuStyle</code>: Left menu style</li>
+<li>
+<code>rightMenuStyle</code>: Right menu style</li>
+<li>
+<code>topMenuStyle</code>: Top menu style</li>
+<li>
+<code>bottomMenuStyle</code>: Bottom menu style</li>
+<li>
+<p><code>menuStyle</code>: Default menu style</p>
+
+<p>and some SlideMenuStyle:</p>
+</li>
+</ul><div class="highlight highlight-xml"><pre>    <span class="nt">&lt;style</span> <span class="na">name=</span><span class="s">"SlideMenuStyleDemo"</span> <span class="na">parent=</span><span class="s">"@style/SlideMenuStyleDefault"</span><span class="nt">&gt;</span>
+        <span class="nt">&lt;item</span> <span class="na">name=</span><span class="s">"overDrag"</span><span class="nt">&gt;</span>false<span class="nt">&lt;/item&gt;</span>
+        <span class="nt">&lt;item</span> <span class="na">name=</span><span class="s">"menuBorder"</span><span class="nt">&gt;</span>48dp<span class="nt">&lt;/item&gt;</span>
+        <span class="nt">&lt;item</span> <span class="na">name=</span><span class="s">"menuOverDragBorder"</span><span class="nt">&gt;</span>0dp<span class="nt">&lt;/item&gt;</span>
+        <span class="nt">&lt;item</span> <span class="na">name=</span><span class="s">"slideRatio"</span><span class="nt">&gt;</span>0.5<span class="nt">&lt;/item&gt;</span>
+        <span class="nt">&lt;item</span> <span class="na">name=</span><span class="s">"menuShadow"</span><span class="nt">&gt;</span>8dp<span class="nt">&lt;/item&gt;</span>
+        <span class="nt">&lt;item</span> <span class="na">name=</span><span class="s">"dragEdge"</span><span class="nt">&gt;</span>48dp<span class="nt">&lt;/item&gt;</span>
+        <span class="nt">&lt;item</span> <span class="na">name=</span><span class="s">"touchSlop"</span><span class="nt">&gt;</span>16dp<span class="nt">&lt;/item&gt;</span>
+        <span class="nt">&lt;item</span> <span class="na">name=</span><span class="s">"minAlpha"</span><span class="nt">&gt;</span>0.3<span class="nt">&lt;/item&gt;</span>
+        <span class="nt">&lt;item</span> <span class="na">name=</span><span class="s">"velocitySlop"</span><span class="nt">&gt;</span>500<span class="nt">&lt;/item&gt;</span>
+        <span class="nt">&lt;item</span> <span class="na">name=</span><span class="s">"animDuration"</span><span class="nt">&gt;</span>800<span class="nt">&lt;/item&gt;</span>
+        <span class="nt">&lt;item</span> <span class="na">name=</span><span class="s">"closeEdge"</span><span class="nt">&gt;</span>0.75<span class="nt">&lt;/item&gt;</span>
+    <span class="nt">&lt;/style&gt;</span>
+</pre></div>
+
+<h6>
+<a name="attributes-1" class="anchor" href="#attributes-1"><span class="octicon octicon-link"></span></a>Attributes</h6>
+
+<ul>
+<li>
+<code>overDrag</code>: Enable drag menu out of its size</li>
+<li>
+<code>menuBorder</code>: The size of content view visible when menu openned, can be dimension or percent of content view's size</li>
+<li>
+<code>menuOverDragBorder</code>: The size of overdrag region when menu dragged, can be dimension or percent of content view's size</li>
+<li>
+<code>slideRatio</code>: The ratio of traveling distance between menu and content view</li>
+<li>
+<code>menuShadow</code>: The size of shadow</li>
+<li>
+<code>dragEdge</code>: The size of drag region, can be dimension or -1 (match_content)</li>
+<li>
+<code>touchSlop</code>: The distance which menu start dragging</li>
+<li>
+<code>minAlpha</code>: The minimum transparency of menu </li>
+<li>
+<code>velocitySlop</code>: The velocity of fling which menu start opening</li>
+<li>
+<code>animDuration</code>: The duration of opening and closing animation</li>
+<li>
+<code>closeEdge</code>: The distance which menu auto close when stop dragging, can be dimension or percent of menu's size</li>
+</ul><p>Declare the following view on your xml layout:</p>
+
+<div class="highlight highlight-xml"><pre>    <span class="nt">&lt;com.rey.slidelayout.SlideLayout</span> <span class="na">xmlns:android=</span><span class="s">"http://schemas.android.com/apk/res/android"</span>
+        <span class="na">xmlns:app=</span><span class="s">"http://schemas.android.com/apk/res-auto"</span>
+        <span class="na">style=</span><span class="s">"@style/SlideLayoutStyleDemo"</span>
+        <span class="na">android:layout_width=</span><span class="s">"match_parent"</span>
+        <span class="na">android:layout_height=</span><span class="s">"match_parent"</span>
+        <span class="na">app:contentChild=</span><span class="s">"4"</span>
+        <span class="na">app:leftMenuChild=</span><span class="s">"0"</span>
+        <span class="na">app:rightMenuChild=</span><span class="s">"1"</span>
+        <span class="na">app:topMenuChild=</span><span class="s">"2"</span>
+        <span class="na">app:bottomMenuChild=</span><span class="s">"3"</span><span class="nt">&gt;</span>
+
+        <span class="nt">&lt;TextView</span> 
+            <span class="na">android:layout_width=</span><span class="s">"match_parent"</span>
+            <span class="na">android:layout_height=</span><span class="s">"match_parent"</span>
+            <span class="na">android:text=</span><span class="s">"Left Menu"</span><span class="nt">/&gt;</span>
+
+        <span class="nt">&lt;TextView</span> 
+            <span class="na">android:layout_width=</span><span class="s">"match_parent"</span>
+            <span class="na">android:layout_height=</span><span class="s">"match_parent"</span>
+            <span class="na">android:text=</span><span class="s">"Right Menu"</span><span class="nt">/&gt;</span>
+
+        <span class="nt">&lt;TextView</span> 
+            <span class="na">android:layout_width=</span><span class="s">"match_parent"</span>
+            <span class="na">android:layout_height=</span><span class="s">"match_parent"</span>
+            <span class="na">android:text=</span><span class="s">"Top Menu"</span><span class="nt">/&gt;</span>
+
+        <span class="nt">&lt;TextView</span> 
+            <span class="na">android:layout_width=</span><span class="s">"match_parent"</span>
+            <span class="na">android:layout_height=</span><span class="s">"match_parent"</span>
+            <span class="na">android:text=</span><span class="s">"Bottom Menu"</span><span class="nt">/&gt;</span>
+
+        <span class="nt">&lt;TextView</span> 
+            <span class="na">android:layout_width=</span><span class="s">"match_parent"</span>
+            <span class="na">android:layout_height=</span><span class="s">"match_parent"</span>
+            <span class="na">android:text=</span><span class="s">"Content View"</span><span class="nt">/&gt;</span>
+
+    <span class="nt">&lt;/com.rey.slidelayout.SlideLayout&gt;</span>
+</pre></div>
+
+<h6>
+<a name="attributes-2" class="anchor" href="#attributes-2"><span class="octicon octicon-link"></span></a>Attributes</h6>
+
+<ul>
+<li>
+<code>contentChild</code>: index of content view in SlideLayout</li>
+<li>
+<code>leftMenuChild</code>: index of left menu in SlideLayout</li>
+<li>
+<code>rightMenuChild</code>:  index of right menu in SlideLayout</li>
+<li>
+<code>topMenuChild</code>:  index of top menu in SlideLayout</li>
+<li>
+<code>bottomMenuChild</code>:  index of bottom menu in SlideLayout</li>
+</ul><p>The order of menu and content view in SlideLayout decides menu will be above (Google style) or below (Facebook style) content view.</p>
+
+<h2>
+<a name="developed-by" class="anchor" href="#developed-by"><span class="octicon octicon-link"></span></a>Developed By</h2>
+
+<ul>
+<li>Rey Pham - <a href="mailto:pea5137@gmail.com">pea5137@gmail.com</a>
+</li>
+</ul><h2>
+<a name="credits" class="anchor" href="#credits"><span class="octicon octicon-link"></span></a>Credits</h2>
+
+<ul>
+<li>SlideLayout is inspired by <a href="http://cyrilmottier.com/2012/05/22/the-making-of-prixing-fly-in-app-menu-part-1/">Cyril Mottier's post</a>
+</li>
+</ul><h2>
+<a name="contributing" class="anchor" href="#contributing"><span class="octicon octicon-link"></span></a>Contributing</h2>
+
+<p>Want to contribute? You are welcome!</p>
+        </section>
+
+        <aside id="sidebar">
+          <a href="https://github.com/rey5137/SlideLayout/zipball/master" class="button">
+            <small>Download</small>
+            .zip file
+          </a>
+          <a href="https://github.com/rey5137/SlideLayout/tarball/master" class="button">
+            <small>Download</small>
+            .tar.gz file
+          </a>
+
+          <p class="repo-owner"><a href="https://github.com/rey5137/SlideLayout"></a> is maintained by <a href="https://github.com/rey5137">rey5137</a>.</p>
+
+          <p>This page was generated by <a href="https://pages.github.com">GitHub Pages</a> using the Architect theme by <a href="https://twitter.com/jasonlong">Jason Long</a>.</p>
+        </aside>
+      </div>
+    </div>
+
+  
+  </body>
+</html>
