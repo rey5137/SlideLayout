@@ -1,22 +1,22 @@
 <resources>
     
     <style name="SlideLayoutStyleDefault">
-        <item name="dragEnable">true</item>
-        <item name="menuStyle">@style/SlideMenuStyleDefault</item>        
+        <item name="sl_dragEnable">true</item>
+        <item name="sl_menuStyle">@style/SlideMenuStyleDefault</item>        
     </style>
     
     <style name="SlideMenuStyleDefault">
-        <item name="overDrag">true</item>
-        <item name="menuBorder">48dp</item>
-        <item name="menuOverDragBorder">48dp</item>
-        <item name="slideRatio">0.5</item>
-        <item name="menuShadow">8dp</item>
-        <item name="dragEdge">32dp</item>
-        <item name="touchSlop">16dp</item>
-        <item name="minAlpha">0.3</item>
-        <item name="velocitySlop">500</item>
-        <item name="animDuration">800</item>
-        <item name="closeEdge">0.75</item>
+        <item name="sm_overDrag">true</item>
+        <item name="sm_menuBorder">48dp</item>
+        <item name="sm_menuOverDragBorder">48dp</item>
+        <item name="sm_slideRatio">0.5</item>
+        <item name="sm_menuShadow">8dp</item>
+        <item name="sm_dragEdge">32dp</item>
+        <item name="sm_touchSlop">16dp</item> 
+        <item name="sm_maxDim">0.3</item>
+        <item name="sm_velocitySlop">500</item>
+        <item name="sm_animDuration">800</item>
+        <item name="sm_closeEdge">0.75</item>
     </style>
 
 </resources>

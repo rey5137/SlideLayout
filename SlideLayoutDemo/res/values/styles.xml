@@ -3,85 +3,99 @@
     </style>
 
     <style name="AppTheme" parent="AppBaseTheme">
+        <item name="android:windowBackground">@color/bg_window</item>
     </style>
     
     <style name="SlideLayoutStyleDemo" parent="@style/SlideLayoutStyleDefault">
-        <item name="dragEnable">true</item>
-        <item name="leftMenuStyle">@style/LeftSlideMenuStyleDemo</item>        
-        <item name="rightMenuStyle">@style/RightSlideMenuStyleDemo</item>  
-        <item name="topMenuStyle">@style/TopSlideMenuStyleDemo</item>
-        <item name="bottomMenuStyle">@style/BottomSlideMenuStyleDemo</item>
-        <item name="menuStyle">@style/SlideMenuStyleDemo</item>
+        <item name="sl_dragEnable">true</item>
+        <item name="sl_leftMenuStyle">@style/LeftSlideMenuStyleDemo</item>        
+        <item name="sl_rightMenuStyle">@style/RightSlideMenuStyleDemo</item>  
+        <item name="sl_topMenuStyle">@style/TopSlideMenuStyleDemo</item>
+        <item name="sl_bottomMenuStyle">@style/BottomSlideMenuStyleDemo</item>
+        <item name="sl_menuStyle">@style/SlideMenuStyleDemo</item>
+    </style>
+    
+    <style name="SlideLayoutStyle2Demo" parent="@style/SlideLayoutStyleDefault">
+        <item name="sl_dragEnable">true</item>
+        <item name="sl_menuStyle">@style/SlideMenuStyleDemo</item>
+        <item name="sl_leftMenuChild">0</item>
+        <item name="sl_rightMenuChild">1</item>
+        <item name="sl_bottomMenuChild">2</item>
+        <item name="sl_contentChild">3</item>
     </style>
     
     <style name="SlideMenuStyleDemo" parent="@style/SlideMenuStyleDefault">
-        <item name="overDrag">false</item>
-        <item name="menuBorder">48dp</item>
-        <item name="menuOverDragBorder">0dp</item>
-        <item name="slideRatio">0.5</item>
-        <item name="menuShadow">8dp</item>
-        <item name="dragEdge">48dp</item>
-        <item name="touchSlop">16dp</item>
-        <item name="minAlpha">0.3</item>
-        <item name="velocitySlop">500</item>
-        <item name="animDuration">800</item>
-        <item name="closeEdge">0.75</item>
+        <item name="sm_overDrag">false</item>
+        <item name="sm_menuBorder">48dp</item>
+        <item name="sm_menuOverDragBorder">0dp</item>
+        <item name="sm_slideRatio">0.5</item>
+        <item name="sm_menuShadow">8dp</item>
+        <item name="sm_dragEdge">16dp</item>
+        <item name="sm_touchSlop">16dp</item>
+        <item name="sm_maxDim">0.7</item>
+        <item name="sm_velocitySlop">500</item>
+        <item name="sm_animDuration">800</item>
+        <item name="sm_closeEdge">0.75</item>
+        <item name="sm_animInterpolator">@android:anim/decelerate_interpolator</item>
     </style>
     
     <style name="LeftSlideMenuStyleDemo" parent="@style/SlideMenuStyleDefault">
-        <item name="overDrag">true</item>
-        <item name="menuBorder">96dp</item>
-        <item name="menuOverDragBorder">48dp</item>
-        <item name="slideRatio">1</item>
-        <item name="menuShadow">8dp</item>
-        <item name="dragEdge">48dp</item>
-        <item name="touchSlop">16dp</item>
-        <item name="minAlpha">0.3</item>
-        <item name="velocitySlop">500</item>
-        <item name="animDuration">800</item>
-        <item name="closeEdge">0.75</item>
+        <item name="sm_overDrag">true</item>
+        <item name="sm_menuBorder">96dp</item>
+        <item name="sm_menuOverDragBorder">48dp</item>
+        <item name="sm_slideRatio">1</item>
+        <item name="sm_menuShadow">8dp</item>
+        <item name="sm_dragEdge">48dp</item>
+        <item name="sm_touchSlop">16dp</item>
+        <item name="sm_maxDim">0.7</item>
+        <item name="sm_velocitySlop">500</item>
+        <item name="sm_animDuration">800</item>
+        <item name="sm_closeEdge">0.75</item>
     </style>
     
     <style name="RightSlideMenuStyleDemo" parent="@style/SlideMenuStyleDefault">
-        <item name="overDrag">true</item>
-        <item name="menuBorder">96dp</item>
-        <item name="menuOverDragBorder">48dp</item>
-        <item name="slideRatio">0.5</item>
-        <item name="menuShadow">8dp</item>
-        <item name="dragEdge">48dp</item>
-        <item name="touchSlop">16dp</item>
-        <item name="minAlpha">0.3</item>
-        <item name="velocitySlop">500</item>
-        <item name="animDuration">800</item>
-        <item name="closeEdge">0.75</item>
+        <item name="sm_overDrag">true</item>
+        <item name="sm_menuBorder">96dp</item>
+        <item name="sm_menuOverDragBorder">48dp</item>
+        <item name="sm_slideRatio">0.5</item>
+        <item name="sm_menuShadow">8dp</item>
+        <item name="sm_dragEdge">48dp</item>
+        <item name="sm_touchSlop">16dp</item>
+        <item name="sm_maxDim">0.7</item>
+        <item name="sm_velocitySlop">500</item>
+        <item name="sm_animDuration">800</item>
+        <item name="sm_closeEdge">0.75</item>
+        <item name="sm_animInterpolator">@android:anim/accelerate_interpolator</item>
     </style>
     
     <style name="TopSlideMenuStyleDemo" parent="@style/SlideMenuStyleDefault">
-        <item name="overDrag">true</item>
-        <item name="menuBorder">96dp</item>
-        <item name="menuOverDragBorder">48dp</item>
-        <item name="slideRatio">0</item>
-        <item name="menuShadow">8dp</item>
-        <item name="dragEdge">48dp</item>
-        <item name="touchSlop">16dp</item>
-        <item name="minAlpha">0.3</item>
-        <item name="velocitySlop">500</item>
-        <item name="animDuration">800</item>
-        <item name="closeEdge">0.75</item>
+        <item name="sm_overDrag">true</item>
+        <item name="sm_menuBorder">96dp</item>
+        <item name="sm_menuOverDragBorder">48dp</item>
+        <item name="sm_slideRatio">0</item>
+        <item name="sm_menuShadow">8dp</item>
+        <item name="sm_dragEdge">48dp</item>
+        <item name="sm_touchSlop">16dp</item>
+        <item name="sm_maxDim">0.7</item>
+        <item name="sm_velocitySlop">500</item>
+        <item name="sm_animDuration">800</item>
+        <item name="sm_closeEdge">0.75</item>
+        <item name="sm_animInterpolator">@android:anim/accelerate_decelerate_interpolator</item>
     </style>
     
     <style name="BottomSlideMenuStyleDemo" parent="@style/SlideMenuStyleDefault">
-        <item name="overDrag">true</item>
-        <item name="menuBorder">96dp</item>
-        <item name="menuOverDragBorder">48dp</item>
-        <item name="slideRatio">-0.5</item>
-        <item name="menuShadow">8dp</item>
-        <item name="dragEdge">48dp</item>
-        <item name="touchSlop">16dp</item>
-        <item name="minAlpha">0.3</item>
-        <item name="velocitySlop">500</item>
-        <item name="animDuration">800</item>
-        <item name="closeEdge">0.75</item>
+        <item name="sm_overDrag">true</item>
+        <item name="sm_menuBorder">96dp</item>
+        <item name="sm_menuOverDragBorder">48dp</item>
+        <item name="sm_slideRatio">-0.5</item>
+        <item name="sm_menuShadow">8dp</item>
+        <item name="sm_dragEdge">48dp</item>
+        <item name="sm_touchSlop">16dp</item>
+        <item name="sm_maxDim">0.7</item>
+        <item name="sm_velocitySlop">500</item>
+        <item name="sm_animDuration">800</item>
+        <item name="sm_closeEdge">0.75</item>
+        <item name="sm_animInterpolator">@android:anim/decelerate_interpolator</item>
     </style>
 
 </resources>

@@ -3,18 +3,19 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:orientation="vertical"
-    android:background="#FF000000">
+    android:orientation="vertical">
     
     <LinearLayout 
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="horizontal">
+        android:orientation="horizontal"
+        android:weightSum="2.0">
         
         <CheckBox 
 	        android:id="@+id/main_cb_top"
-	        android:layout_width="wrap_content"
+	        android:layout_width="0dp"
 	        android:layout_height="wrap_content"
+	        android:layout_weight="1.0"
 	        android:checked="true"
 	        android:textSize="16sp"
 	        android:textColor="#FFFFFFFF"
@@ -22,8 +23,9 @@
         
         <CheckBox 
 	        android:id="@+id/main_cb_anim"
-	        android:layout_width="wrap_content"
+	        android:layout_width="0dp"
 	        android:layout_height="wrap_content"
+	        android:layout_weight="1.0"
 	        android:checked="true"
 	        android:textSize="16sp"
 	        android:textColor="#FFFFFFFF"
@@ -31,165 +33,23 @@
         
     </LinearLayout>
     
-    <LinearLayout 
+    <FrameLayout 
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="horizontal"
-        android:weightSum="4.0">
+	    android:layout_height="match_parent">
         
-        <Button 
-            android:id="@+id/main_bt_left"
-            android:layout_width="0dp"
-            android:layout_weight="1.0"
-            android:layout_height="wrap_content"
-            android:text="Show left"
-            android:textSize="14sp"/>
+        <include 
+			layout="@layout/layout_top"
+		    android:id="@+id/main_sl_top"
+		    android:layout_width="match_parent"
+		    android:layout_height="match_parent"/>  
+		    
+	    <include 
+			layout="@layout/layout_bottom"
+		    android:id="@+id/main_sl_bottom"
+		    android:layout_width="match_parent"
+		    android:layout_height="match_parent"
+		    android:visibility="gone"/>  
         
-        <Button 
-            android:id="@+id/main_bt_right"
-            android:layout_width="0dp"
-            android:layout_weight="1.0"
-            android:layout_height="wrap_content"
-            android:text="Show right"
-            android:textSize="14sp"/>
-        
-        <Button 
-            android:id="@+id/main_bt_top"
-            android:layout_width="0dp"
-            android:layout_weight="1.0"
-            android:layout_height="wrap_content"
-            android:text="Show top"
-            android:textSize="14sp"/>
-        
-        <Button 
-            android:id="@+id/main_bt_bottom"
-            android:layout_width="0dp"
-            android:layout_weight="1.0"
-            android:layout_height="wrap_content"
-            android:text="Show bottom"
-            android:textSize="14sp"/>
-        
-    </LinearLayout>
-    
-    <com.rey.slidelayout.SlideLayout
-        style="@style/SlideLayoutStyleDemo"
-        android:id="@+id/main_sl_top"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        app:contentChild="4"
-        app:leftMenuChild="0"
-        app:rightMenuChild="1"
-        app:topMenuChild="2"
-        app:bottomMenuChild="3"
-        android:padding="8dp">
-        
-        <TextView 
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:background="#FFFF0000"
-            android:textColor="#FFFFFFFF"
-            android:textSize="20sp"
-            android:gravity="center"
-            android:text="Left Menu"/>
-        
-        <TextView 
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:background="#FF00FF00"
-            android:textColor="#FFFFFFFF"
-            android:textSize="20sp"
-            android:gravity="center"
-            android:text="Right Menu"/>
-        
-        <TextView 
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:background="#FF0000FF"
-            android:textColor="#FFFFFFFF"
-            android:textSize="20sp"
-            android:gravity="center"
-            android:text="Top Menu"/>
-        
-        <TextView 
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:background="#FFFF00FF"
-            android:textColor="#FFFFFFFF"
-            android:textSize="20sp"
-            android:gravity="center"
-            android:text="Bottom Menu"/>
-        
-        <TextView 
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:background="#FFFFFFFF"
-            android:textColor="#FF000000"
-            android:textSize="20sp"
-            android:gravity="center"
-            android:text="Content View"/>
-        
-    </com.rey.slidelayout.SlideLayout>
-    
-    <com.rey.slidelayout.SlideLayout
-        style="@style/SlideLayoutStyleDemo"
-        android:id="@+id/main_sl_bottom"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        app:contentChild="0"
-        app:leftMenuChild="1"
-        app:rightMenuChild="2"
-        app:topMenuChild="3"
-        app:bottomMenuChild="4"
-        android:padding="8dp">
-        
-        <TextView 
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:background="#FFFFFFFF"
-            android:textColor="#FF000000"
-            android:textSize="20sp"
-            android:gravity="center"
-            android:text="Content View"/>
-        
-        <TextView 
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:background="#FFFF0000"
-            android:textColor="#FFFFFFFF"
-            android:textSize="20sp"
-            android:gravity="center"
-            android:text="Left Menu"/>
-        
-        <TextView 
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:background="#FF00FF00"
-            android:textColor="#FFFFFFFF"
-            android:textSize="20sp"
-            android:gravity="center"
-            android:text="Right Menu"/>
-        
-        <TextView 
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:background="#FF0000FF"
-            android:textColor="#FFFFFFFF"
-            android:textSize="20sp"
-            android:gravity="center"
-            android:text="Top Menu"/>
-        
-        <TextView 
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:background="#FFFF00FF"
-            android:textColor="#FFFFFFFF"
-            android:textSize="20sp"
-            android:gravity="center"
-            android:text="Bottom Menu"/>
-        
-        
-        
-    </com.rey.slidelayout.SlideLayout>
-    
+    </FrameLayout>    
 
 </LinearLayout>

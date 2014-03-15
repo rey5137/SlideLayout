@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="utf-8"?>
+<com.rey.slidelayout.SlideLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    style="@style/SlideLayoutStyleDemo"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    app:sl_contentChild="4"
+    app:sl_leftMenuChild="0"
+    app:sl_rightMenuChild="1"
+    app:sl_topMenuChild="2"
+    app:sl_bottomMenuChild="3"
+    android:padding="16dp">
+    
+    <include 
+        layout="@layout/layout_menu"
+        android:id="@+id/top_left"       
+        android:layout_width="match_parent"
+    	android:layout_height="match_parent"/>
+    
+    <include 
+        layout="@layout/layout_menu"
+        android:id="@+id/top_right"        
+        android:layout_width="match_parent"
+   		android:layout_height="match_parent"/>
+    
+    <include 
+        layout="@layout/layout_menu"
+        android:id="@+id/top_top"        
+        android:layout_width="match_parent"
+   		android:layout_height="match_parent"/>
+    
+    <include 
+        layout="@layout/layout_menu"
+        android:id="@+id/top_bottom"        
+        android:layout_width="match_parent"
+   		android:layout_height="match_parent"/>
+    
+    <include 
+        layout="@layout/layout_content"
+        android:id="@+id/top_content"        
+        android:layout_width="match_parent"
+   		android:layout_height="match_parent"/>
+
+</com.rey.slidelayout.SlideLayout>

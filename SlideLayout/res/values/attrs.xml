@@ -2,32 +2,33 @@
 <resources>
         
     <declare-styleable name="SlideLayoutStyle">
-        <attr name="dragEnable" format="boolean"/>  
-        <attr name="contentChild" format="integer"/>        
-        <attr name="leftMenuChild" format="integer"/>        
-        <attr name="rightMenuChild" format="integer"/>                
-        <attr name="topMenuChild" format="integer"/>        
-        <attr name="bottomMenuChild" format="integer"/>
-        <attr name="leftMenuStyle" format="reference"/>
-        <attr name="rightMenuStyle" format="reference"/>
-        <attr name="topMenuStyle" format="reference"/>
-        <attr name="bottomMenuStyle" format="reference"/>   
-        <attr name="menuStyle" format="reference"/>   
+        <attr name="sl_dragEnable" format="boolean"/>  
+        <attr name="sl_contentChild" format="integer"/>        
+        <attr name="sl_leftMenuChild" format="integer"/>        
+        <attr name="sl_rightMenuChild" format="integer"/>                
+        <attr name="sl_topMenuChild" format="integer"/>        
+        <attr name="sl_bottomMenuChild" format="integer"/>
+        <attr name="sl_leftMenuStyle" format="reference"/>
+        <attr name="sl_rightMenuStyle" format="reference"/>
+        <attr name="sl_topMenuStyle" format="reference"/>
+        <attr name="sl_bottomMenuStyle" format="reference"/>   
+        <attr name="sl_menuStyle" format="reference"/>   
     </declare-styleable>
     
     <declare-styleable name="SlideMenuStyle">
-        <attr name="overDrag" format="boolean"/>
-        <attr name="menuBorder" format="float|dimension"/>
-        <attr name="menuOverDragBorder" format="float|dimension"/>        
-        <attr name="slideRatio" format="float"/>
-        <attr name="menuShadow" format="dimension"/>      
-        <attr name="dragEdge" format="integer|dimension">
+        <attr name="sm_overDrag" format="boolean"/>
+        <attr name="sm_menuBorder" format="float|dimension"/>
+        <attr name="sm_menuOverDragBorder" format="float|dimension"/>        
+        <attr name="sm_slideRatio" format="float"/>
+        <attr name="sm_menuShadow" format="dimension"/>      
+        <attr name="sm_dragEdge" format="integer|dimension">
             <enum name="match_content" value="-1" />
         </attr>
-        <attr name="touchSlop" format="dimension"/>
-        <attr name="minAlpha" format="float"/>   
-        <attr name="velocitySlop" format="float"/>
-        <attr name="closeEdge" format="float|dimension"/>        
-        <attr name="animDuration" format="integer"/>
+        <attr name="sm_touchSlop" format="dimension"/>
+        <attr name="sm_maxDim" format="float"/>  
+        <attr name="sm_velocitySlop" format="float"/>
+        <attr name="sm_closeEdge" format="float|dimension"/>        
+        <attr name="sm_animDuration" format="integer"/>
+        <attr name="sm_animInterpolator" format="reference"/>
     </declare-styleable>
 </resources>

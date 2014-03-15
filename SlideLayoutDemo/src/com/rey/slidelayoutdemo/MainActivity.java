@@ -2,27 +2,27 @@ package com.rey.slidelayoutdemo;
 
 import android.app.Activity;
 import android.os.Bundle;
+import android.view.LayoutInflater;
 import android.view.View;
+import android.view.ViewGroup;
+import android.widget.AdapterView;
+import android.widget.BaseAdapter;
 import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.CompoundButton;
+import android.widget.ListView;
+import android.widget.TextView;
 
 import com.rey.slidelayout.SlideLayout;
 
-public class MainActivity extends Activity implements SlideLayout.OnStateChangedListener {
+public class MainActivity extends Activity implements SlideLayout.OnStateChangedListener, AdapterView.OnItemClickListener {
 
 	SlideLayout sl_top;
 	SlideLayout sl_bottom;
-	SlideLayout sl_cur;
+	SlideLayout sl_activity;
 	
 	CheckBox cb_top;
-	CheckBox cb_anim;
-	Button bt_left;
-	Button bt_right;
-	Button bt_top;
-	Button bt_bottom;
-	
-	
+	CheckBox cb_anim;	
 		
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -34,134 +34,218 @@ public class MainActivity extends Activity implements SlideLayout.OnStateChanged
 		sl_bottom = (SlideLayout)findViewById(R.id.main_sl_bottom);
 		cb_top = (CheckBox)findViewById(R.id.main_cb_top);
 		cb_anim = (CheckBox)findViewById(R.id.main_cb_anim);
-		bt_left = (Button)findViewById(R.id.main_bt_left);
-		bt_right = (Button)findViewById(R.id.main_bt_right);
-		bt_top = (Button)findViewById(R.id.main_bt_top);
-		bt_bottom = (Button)findViewById(R.id.main_bt_bottom);
-		
-		sl_top.setOnStateChangedListener(this);
-		sl_cur = sl_top;
-		sl_bottom.setVisibility(View.GONE);
 		
 		cb_top.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
 			
 			@Override
 			public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-				if(isChecked){
-					sl_bottom.setOnStateChangedListener(null);
-					sl_bottom.closeAllMenu(false);
-					sl_bottom.setVisibility(View.GONE);
-					
-					sl_top.setOnStateChangedListener(MainActivity.this);
-					sl_top.setVisibility(View.VISIBLE);
-					sl_cur = sl_top;
-				}
-				else{					
-					sl_top.setOnStateChangedListener(null);
-					sl_top.closeAllMenu(false);
-					sl_top.setVisibility(View.GONE);
-					
-					sl_bottom.setOnStateChangedListener(MainActivity.this);
-					sl_bottom.setVisibility(View.VISIBLE);
-					sl_cur = sl_bottom;
-				}
-				
-				
+				sl_top.setVisibility(isChecked ? View.VISIBLE : View.GONE);
+				sl_bottom.setVisibility(isChecked ? View.GONE : View.VISIBLE);
 			}
+			
 		});
 		
-		bt_left.setOnClickListener(new View.OnClickListener() {			
-			@Override
-			public void onClick(View v) {				
-				boolean showContent = sl_cur.isState(SlideLayout.ACTION_SHOW, SlideLayout.TARGET_CONTENT);
-				
-				if(showContent)
-					sl_cur.openLeftMenu(cb_anim.isChecked());
-				else
-					sl_cur.closeLeftMenu(cb_anim.isChecked());
-				
-				setButton(sl_cur.getState());
-			}
-		});
-		
-		bt_right.setOnClickListener(new View.OnClickListener() {			
-			@Override
-			public void onClick(View v) {				
-				boolean showContent = sl_cur.isState(SlideLayout.ACTION_SHOW, SlideLayout.TARGET_CONTENT);
-				
-				if(showContent)
-					sl_cur.openRightMenu(cb_anim.isChecked());
-				else
-					sl_cur.closeRightMenu(cb_anim.isChecked());
-				
-				setButton(sl_cur.getState());
-			}
-		});
-		
-		bt_top.setOnClickListener(new View.OnClickListener() {			
-			@Override
-			public void onClick(View v) {				
-				boolean showContent = sl_cur.isState(SlideLayout.ACTION_SHOW, SlideLayout.TARGET_CONTENT);
-				
-				if(showContent)
-					sl_cur.openTopMenu(cb_anim.isChecked());
-				else
-					sl_cur.closeTopMenu(cb_anim.isChecked());
-				
-				setButton(sl_cur.getState());
-			}
-		});
-		
-		bt_bottom.setOnClickListener(new View.OnClickListener() {			
-			@Override
-			public void onClick(View v) {				
-				boolean showContent = sl_cur.isState(SlideLayout.ACTION_SHOW, SlideLayout.TARGET_CONTENT);
-				
-				if(showContent)
-					sl_cur.openBottomMenu(cb_anim.isChecked());
-				else
-					sl_cur.closeBottomMenu(cb_anim.isChecked());
-
-				setButton(sl_cur.getState());
-			}
-		});
+		initTopSlideLayout();		
+		initBottomSlideLayout();		
+		initActivitySlideLayout();
 	}
-
-	private void setButton(int state){
-		int action = SlideLayout.getStateAction(state);
-		int direction = SlideLayout.getStateTarget(state);
+	
+	private void initActivitySlideLayout(){
+		sl_activity = new SlideLayout(this, null, R.style.SlideLayoutStyle2Demo);
 		
-		if(action == SlideLayout.ACTION_SHOW && direction == SlideLayout.TARGET_CONTENT){
-			bt_left.setEnabled(true);
-			bt_right.setEnabled(true);
-			bt_top.setEnabled(true);
-			bt_bottom.setEnabled(true);
-			bt_left.setText("Open left");
-			bt_right.setText("Open right");
-			bt_top.setText("Open top");
-			bt_bottom.setText("Open bottom");
-		}
-		else{
-			bt_left.setEnabled(direction == SlideLayout.TARGET_LEFT);
-			bt_left.setText((action == SlideLayout.ACTION_SHOW && bt_left.isEnabled()) ? "Close left" : "Open left");
+		TextView v = (TextView)LayoutInflater.from(this).inflate(R.layout.layout_text, null);
+		v.setBackgroundColor(0xFFFF0000);
+		v.setText("Left Menu");
+		sl_activity.addView(v);
+		
+		v = (TextView)LayoutInflater.from(this).inflate(R.layout.layout_text, null);
+		v.setBackgroundColor(0xFF00FF00);
+		v.setText("Right Menu");
+		sl_activity.addView(v);
+		
+		v = (TextView)LayoutInflater.from(this).inflate(R.layout.layout_text, null);
+		v.setBackgroundColor(0xFF0000FF);
+		v.setText("Bottom Menu");
+		sl_activity.addView(v);
+		
+		sl_activity.attachToActivity(this, true);
+	}
+	
+	private void initTopSlideLayout(){
+		ListView lv_left = (ListView)sl_top.findViewById(R.id.top_left);
+		ListView lv_right = (ListView)sl_top.findViewById(R.id.top_right);
+		ListView lv_top = (ListView)sl_top.findViewById(R.id.top_top);
+		ListView lv_bottom = (ListView)sl_top.findViewById(R.id.top_bottom);
+		
+		lv_left.setAdapter(new ButtonAdapter(10, "Close left menu"));
+		lv_right.setAdapter(new ButtonAdapter(10, "Close right menu"));
+		lv_top.setAdapter(new ButtonAdapter(10, "Close top menu"));
+		lv_bottom.setAdapter(new ButtonAdapter(10, "Close bottom menu"));
+		
+		lv_left.setOnItemClickListener(this);
+		lv_right.setOnItemClickListener(this);
+		lv_top.setOnItemClickListener(this);
+		lv_bottom.setOnItemClickListener(this);
+		
+		Button bt_left = (Button)sl_top.findViewById(R.id.content_bt_left);
+		Button bt_right = (Button)sl_top.findViewById(R.id.content_bt_right);
+		Button bt_top = (Button)sl_top.findViewById(R.id.content_bt_top);
+		Button bt_bottom = (Button)sl_top.findViewById(R.id.content_bt_bottom);
+		
+		View.OnClickListener listener = new View.OnClickListener() {
 			
-			bt_right.setEnabled(direction == SlideLayout.TARGET_RIGHT);
-			bt_right.setText((action == SlideLayout.ACTION_SHOW && bt_right.isEnabled()) ? "Close right" : "Open right");
+			@Override
+			public void onClick(View v) {
+				switch (v.getId()) {
+					case R.id.content_bt_left:
+						sl_top.openLeftMenu(cb_anim.isChecked());
+						break;
+					case R.id.content_bt_right:
+						sl_top.openRightMenu(cb_anim.isChecked());
+						break;
+					case R.id.content_bt_top:
+						sl_top.openTopMenu(cb_anim.isChecked());
+						break;
+					case R.id.content_bt_bottom:
+						sl_top.openBottomMenu(cb_anim.isChecked());
+						break;
+				}
+			}
+		};
+		
+		bt_left.setOnClickListener(listener);
+		bt_right.setOnClickListener(listener);
+		bt_top.setOnClickListener(listener);
+		bt_bottom.setOnClickListener(listener);		
+		
+		TextView tv = (TextView)sl_top.findViewById(R.id.content_tv);
+		tv.setText("Content Above Menu");
+	}
+	
+	private void initBottomSlideLayout(){
+		ListView lv_left = (ListView)sl_bottom.findViewById(R.id.bottom_left);
+		ListView lv_right = (ListView)sl_bottom.findViewById(R.id.bottom_right);
+		ListView lv_top = (ListView)sl_bottom.findViewById(R.id.bottom_top);
+		ListView lv_bottom = (ListView)sl_bottom.findViewById(R.id.bottom_bottom);
+		
+		lv_left.setAdapter(new ButtonAdapter(10, "Close left menu"));
+		lv_right.setAdapter(new ButtonAdapter(10, "Close right menu"));
+		lv_top.setAdapter(new ButtonAdapter(10, "Close top menu"));
+		lv_bottom.setAdapter(new ButtonAdapter(10, "Close bottom menu"));
+		
+		lv_left.setOnItemClickListener(this);
+		lv_right.setOnItemClickListener(this);
+		lv_top.setOnItemClickListener(this);
+		lv_bottom.setOnItemClickListener(this);
+		
+		Button bt_left = (Button)sl_bottom.findViewById(R.id.content_bt_left);
+		Button bt_right = (Button)sl_bottom.findViewById(R.id.content_bt_right);
+		Button bt_top = (Button)sl_bottom.findViewById(R.id.content_bt_top);
+		Button bt_bottom = (Button)sl_bottom.findViewById(R.id.content_bt_bottom);
+		
+		View.OnClickListener listener = new View.OnClickListener() {
 			
-			bt_top.setEnabled(direction == SlideLayout.TARGET_TOP);
-			bt_top.setText((action == SlideLayout.ACTION_SHOW && bt_top.isEnabled()) ? "Close top" : "Open top");
-			
-			bt_bottom.setEnabled(direction == SlideLayout.TARGET_BOTTOM);
-			bt_bottom.setText((action == SlideLayout.ACTION_SHOW && bt_bottom.isEnabled()) ? "Close bottom" : "Open bottom");
-		}
+			@Override
+			public void onClick(View v) {
+				switch (v.getId()) {
+					case R.id.content_bt_left:
+						sl_bottom.openLeftMenu(cb_anim.isChecked());
+						break;
+					case R.id.content_bt_right:
+						sl_bottom.openRightMenu(cb_anim.isChecked());
+						break;
+					case R.id.content_bt_top:
+						sl_bottom.openTopMenu(cb_anim.isChecked());
+						break;
+					case R.id.content_bt_bottom:
+						sl_bottom.openBottomMenu(cb_anim.isChecked());
+						break;
+				}
+			}
+		};
+		
+		bt_left.setOnClickListener(listener);
+		bt_right.setOnClickListener(listener);
+		bt_top.setOnClickListener(listener);
+		bt_bottom.setOnClickListener(listener);		
+		
+		TextView tv = (TextView)sl_bottom.findViewById(R.id.content_tv);
+		tv.setText("Content Below Menu");
 	}
 	
 	@Override
+	public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+		switch (parent.getId()) {
+			case R.id.top_left:
+				sl_top.closeLeftMenu(cb_anim.isChecked());
+				break;
+			case R.id.top_right:
+				sl_top.closeRightMenu(cb_anim.isChecked());
+				break;
+			case R.id.top_top:
+				sl_top.closeTopMenu(cb_anim.isChecked());
+				break;
+			case R.id.top_bottom:
+				sl_top.closeBottomMenu(cb_anim.isChecked());
+				break;
+			case R.id.bottom_left:
+				sl_bottom.closeLeftMenu(cb_anim.isChecked());
+				break;
+			case R.id.bottom_right:
+				sl_bottom.closeRightMenu(cb_anim.isChecked());
+				break;
+			case R.id.bottom_top:
+				sl_bottom.closeTopMenu(cb_anim.isChecked());
+				break;
+			case R.id.bottom_bottom:
+				sl_bottom.closeBottomMenu(cb_anim.isChecked());
+				break;
+		}
+	}
+
+	
+	@Override
 	public void onStateChanged(View v, int old_state, int new_state) {
-		setButton(new_state);
 	}
 	
 	@Override
 	public void onOffsetChanged(View v, float offsetX, float offsetY, int state) {		
+	}
+	
+	class ButtonAdapter extends BaseAdapter{
+
+		int count;
+		String text;
+		
+		public ButtonAdapter(int count, String text){
+			this.count = count;
+			this.text = text;
+		}
+		
+		@Override
+		public int getCount() {
+			return count;
+		}
+
+		@Override
+		public Object getItem(int position) {
+			return text;
+		}
+
+		@Override
+		public long getItemId(int position) {
+			return 0;
+		}
+
+		@Override
+		public View getView(int position, View convertView, ViewGroup parent) {
+			View v = convertView;
+			if(v == null)
+				v = LayoutInflater.from(MainActivity.this).inflate(R.layout.row_menu, null);
+			
+			((TextView)v).setText(text);
+			return v;
+		}
+		
 	}
 }

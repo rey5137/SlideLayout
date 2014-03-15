@@ -2,6 +2,8 @@ package com.rey.slidelayout;
 
 import java.lang.ref.WeakReference;
 
+import android.annotation.SuppressLint;
+import android.app.Activity;
 import android.content.Context;
 import android.content.res.TypedArray;
 import android.util.AttributeSet;
@@ -9,15 +11,17 @@ import android.util.TypedValue;
 import android.view.GestureDetector;
 import android.view.MotionEvent;
 import android.view.View;
+import android.view.ViewGroup;
 import android.view.animation.Animation;
+import android.view.animation.AnimationUtils;
 import android.view.animation.Interpolator;
 import android.view.animation.Transformation;
 import android.widget.FrameLayout;
 
 public class SlideLayout extends FrameLayout {
 		
-	private int action;
-	private int target;
+	private int mAction;
+	private int mTarget;
 	
 	public static final int ACTION_SHOW = 0x00;
 	public static final int ACTION_OPEN = 0x01;	
@@ -33,39 +37,41 @@ public class SlideLayout extends FrameLayout {
 	private static final int ACTION_MASK = 0x0F;
 	private static final int TARGET_MASK = 0xF0;
 	
-	private int viewWidth = -1;
-	private int viewHeight = -1;
+	private int mViewWidth = -1;
+	private int mViewHeight = -1;
 	
-	private int leftMenuChild = -1;
-	private MenuStyle leftMenuStyle;
+	private int mLeftMenuChild = -1;
+	private MenuStyle mLeftMenuStyle;
 	
-	private int rightMenuChild = -1;
-	private MenuStyle rightMenuStyle;
+	private int mRightMenuChild = -1;
+	private MenuStyle mRightMenuStyle;
 	
-	private int topMenuChild = -1;
-	private MenuStyle topMenuStyle;
+	private int mTopMenuChild = -1;
+	private MenuStyle mTopMenuStyle;
 	
-	private int bottomMenuChild = -1;
-	private MenuStyle bottomMenuStyle;
+	private int mBottomMenuChild = -1;
+	private MenuStyle mBottomMenuStyle;
 	
-	private int leftShadowChild = -1;
-	private int rightShadowChild = -1;
-	private int topShadowChild = -1;
-	private int bottomShadowChild = -1;
+	private int mOverlayChild = -1;
+	private int mLeftShadowChild = -1;
+	private int mRightShadowChild = -1;
+	private int mTopShadowChild = -1;
+	private int mBottomShadowChild = -1;
 	
-	private int contentChild = -1;	
-	private int offsetX = 0;
-	private int offsetY = 0;
-	private boolean dragEnable = true;	
-	private Interpolator interpolator = new SmoothInterpolator();
+	private int mContentChild = -1;	
+	private int mTotalChild = 0;
+	private int mOffsetX = 0;
+	private int mOffsetY = 0;
+	private boolean mDragEnable = true;	
+	private Interpolator mInterpolator;
 		
-	private float downX = -1;
-	private float downY = -1;
-	private float prevX;
-	private float prevY;
-	private float disX;
-	private float disY;
-	private boolean startDrag = false;
+	private float mDownX = -1;
+	private float mDownY = -1;
+	private float mPrevX;
+	private float mPrevY;
+	private float mDisX;
+	private float mDisY;
+	private boolean mStartDrag = false;
 	
 	public interface OnStateChangedListener{
 		public void onStateChanged(View v, int old_state, int new_state);
@@ -73,7 +79,7 @@ public class SlideLayout extends FrameLayout {
 		public void onOffsetChanged(View v, float offsetX, float offsetY, int state);
 	}
 	
-	private WeakReference<OnStateChangedListener> listener_state;
+	private WeakReference<OnStateChangedListener> mStateListener;
 		
 	enum OP{
 		START_DRAG_LEFT_FROM_CONTENT, 
@@ -102,8 +108,8 @@ public class SlideLayout extends FrameLayout {
 		CLOSE_BOTTOM
 	};
 		
-	private GestureDetector gestureDetector;
-	private GestureDetector.OnGestureListener listener_gesture = new GestureDetector.OnGestureListener() {
+	private GestureDetector mGestureDetector;
+	private GestureDetector.OnGestureListener mGestureListener = new GestureDetector.OnGestureListener() {
 		
 		@Override
 		public boolean onSingleTapUp(MotionEvent e) {
@@ -151,43 +157,47 @@ public class SlideLayout extends FrameLayout {
 		int topMenuStyleId = 0;
 		int bottomMenuStyleId = 0;
 		
-		if(attrs != null){
-			TypedArray a = context.obtainStyledAttributes(attrs,  R.styleable.SlideLayoutStyle, defStyle, R.style.SlideLayoutStyleDefault);
-			 
+		TypedArray a = null;
+		if(attrs != null)
+			a = context.obtainStyledAttributes(attrs, R.styleable.SlideLayoutStyle, defStyle, R.style.SlideLayoutStyleDefault);		
+		else
+			a = context.obtainStyledAttributes(defStyle > 0 ? defStyle : R.style.SlideLayoutStyleDefault, R.styleable.SlideLayoutStyle);
+		
+		if(a != null){			 
 			for (int i = 0, count = a.getIndexCount(); i < count; i++){
 			    int attr = a.getIndex(i);
 			    switch (attr){
-				    case R.styleable.SlideLayoutStyle_dragEnable:
-			        	dragEnable = a.getBoolean(attr, true);
+				    case R.styleable.SlideLayoutStyle_sl_dragEnable:
+			        	mDragEnable = a.getBoolean(attr, true);
 			        	break;
-			    	case R.styleable.SlideLayoutStyle_contentChild:
-			    		contentChild = a.getInt(attr, -1);
+			    	case R.styleable.SlideLayoutStyle_sl_contentChild:
+			    		mContentChild = a.getInt(attr, -1);
 			    		break;   
-			    	case R.styleable.SlideLayoutStyle_leftMenuChild:
-			        	leftMenuChild = a.getInt(attr, -1);
+			    	case R.styleable.SlideLayoutStyle_sl_leftMenuChild:
+			        	mLeftMenuChild = a.getInt(attr, -1);
 			            break;
-			        case R.styleable.SlideLayoutStyle_rightMenuChild:
-			        	rightMenuChild = a.getInt(attr, -1);
+			        case R.styleable.SlideLayoutStyle_sl_rightMenuChild:
+			        	mRightMenuChild = a.getInt(attr, -1);
 			            break; 
-			        case R.styleable.SlideLayoutStyle_topMenuChild:
-			        	topMenuChild = a.getInt(attr, -1);
+			        case R.styleable.SlideLayoutStyle_sl_topMenuChild:
+			        	mTopMenuChild = a.getInt(attr, -1);
 			            break; 
-			        case R.styleable.SlideLayoutStyle_bottomMenuChild:
-			        	bottomMenuChild = a.getInt(attr, -1);
+			        case R.styleable.SlideLayoutStyle_sl_bottomMenuChild:
+			        	mBottomMenuChild = a.getInt(attr, -1);
 			            break; 
-			        case R.styleable.SlideLayoutStyle_menuStyle:
+			        case R.styleable.SlideLayoutStyle_sl_menuStyle:
 			        	menuStyleId = a.getResourceId(attr, 0);
 			            break;
-			        case R.styleable.SlideLayoutStyle_leftMenuStyle:
+			        case R.styleable.SlideLayoutStyle_sl_leftMenuStyle:
 			        	leftMenuStyleId = a.getResourceId(attr, 0);
 			            break;
-			        case R.styleable.SlideLayoutStyle_rightMenuStyle:
+			        case R.styleable.SlideLayoutStyle_sl_rightMenuStyle:
 			        	rightMenuStyleId = a.getResourceId(attr, 0);
 			            break;
-			        case R.styleable.SlideLayoutStyle_topMenuStyle:
+			        case R.styleable.SlideLayoutStyle_sl_topMenuStyle:
 			        	topMenuStyleId = a.getResourceId(attr, 0);
 			            break;
-			        case R.styleable.SlideLayoutStyle_bottomMenuStyle:
+			        case R.styleable.SlideLayoutStyle_sl_bottomMenuStyle:
 			        	bottomMenuStyleId = a.getResourceId(attr, 0);
 			            break;
 			    }
@@ -195,65 +205,187 @@ public class SlideLayout extends FrameLayout {
 			a.recycle();	
 		}
 		
-		if(leftMenuChild >= 0)
-			leftMenuStyle = new MenuStyle(context, leftMenuStyleId > 0 ? leftMenuStyleId : menuStyleId);
+		mTotalChild = 0;
+		if(mContentChild >= 0)
+			mTotalChild++;
+		
+		if(mLeftMenuChild >= 0){
+			mLeftMenuStyle = new MenuStyle(context, leftMenuStyleId > 0 ? leftMenuStyleId : menuStyleId);
+			mTotalChild += 2;
+		}
 				
-		if(rightMenuChild >= 0)
-			rightMenuStyle = new MenuStyle(context, rightMenuStyleId > 0 ? rightMenuStyleId : menuStyleId);
+		if(mRightMenuChild >= 0){
+			mRightMenuStyle = new MenuStyle(context, rightMenuStyleId > 0 ? rightMenuStyleId : menuStyleId);
+			mTotalChild += 2;
+		}
 		
-		if(topMenuChild >= 0)
-			topMenuStyle = new MenuStyle(context, topMenuStyleId > 0 ? topMenuStyleId : menuStyleId);
+		if(mTopMenuChild >= 0){
+			mTopMenuStyle = new MenuStyle(context, topMenuStyleId > 0 ? topMenuStyleId : menuStyleId);
+			mTotalChild += 2;
+		}
 		
-		if(bottomMenuChild >= 0)
-			bottomMenuStyle = new MenuStyle(context, bottomMenuStyleId > 0 ? bottomMenuStyleId : menuStyleId);
+		if(mBottomMenuChild >= 0){
+			mBottomMenuStyle = new MenuStyle(context, bottomMenuStyleId > 0 ? bottomMenuStyleId : menuStyleId);
+			mTotalChild += 2;
+		}
 		
-		gestureDetector = new GestureDetector(context, listener_gesture);
+		if(mTotalChild > 1)
+			mTotalChild++;
+				
+		mGestureDetector = new GestureDetector(context, mGestureListener);
+	}
+	
+	@Override
+	public void addView(View child, int width, int height) {
+		addView(child);		
+	}
+
+	@Override
+	public void addView(View child, int index) {
+		addView(child);
+	}
+	
+	@Override
+	public void addView(View child, ViewGroup.LayoutParams params) {
+		addView(child, -1, params);
+	}
+	
+	@Override
+	public void addView(View child, int index, ViewGroup.LayoutParams params) {
+		if(params == null)
+			params = new ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT);
 		
-		measure(MeasureSpec.makeMeasureSpec(0, MeasureSpec.UNSPECIFIED), MeasureSpec.makeMeasureSpec(0, MeasureSpec.UNSPECIFIED));
-		viewWidth = getMeasuredWidth();
-		viewHeight = getMeasuredHeight();
-		setLeftMenuView(viewWidth, viewHeight);
-		setRightMenuView(viewWidth, viewHeight);
-		setTopMenuView(viewWidth, viewHeight);
-		setBottomMenuView(viewWidth, viewHeight);
-		setContentView(viewWidth, viewHeight);
-		setShadow(viewWidth, viewHeight);   
+		if(getChildCount() == mTotalChild / 2 - 1){
+			super.addView(child, index, params);
+			addShadowView();
+		}
+		else
+			super.addView(child, index, params);		
+	}
+
+	@Override
+	public void addView(View child) {
+		addView(child, null);
 	}
 	
-	protected View getLeftMenuView(){		
-		return getChildAt(leftMenuChild);
+	/**
+	 * Attach this to an entire Activity
+	 * @param activity the activity is attached
+	 * @param attachToWindow true: attach this to decorView (include title bar), false: attach this to contentView
+	 */
+	public void attachToActivity(Activity activity, boolean attachToWindow) {
+		TypedArray a = activity.getTheme().obtainStyledAttributes(new int[] {android.R.attr.windowBackground});
+		int background = a.getResourceId(0, 0);
+		a.recycle();
+
+		if(attachToWindow){
+			ViewGroup decor = (ViewGroup) activity.getWindow().getDecorView();
+			ViewGroup decorChild = (ViewGroup) decor.getChildAt(0);
+			decorChild.setBackgroundResource(background);
+			decor.removeView(decorChild);
+			decor.addView(this, new ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT));		
+			this.addView(decorChild);
+		}
+		else{
+			ViewGroup contentParent = (ViewGroup)activity.findViewById(android.R.id.content);
+			View content = contentParent.getChildAt(0);
+			contentParent.removeView(content);
+			contentParent.addView(this, new ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT));
+			this.addView(content);
+			if (content.getBackground() == null)
+				content.setBackgroundResource(background);
+		}
 	}
 	
-	protected View getRightMenuView(){		
-		return getChildAt(rightMenuChild);
+	@SuppressLint("NewApi")
+	private void addShadowView(){
+		int count = getChildCount();
+		
+		View v = new View(getContext());
+		v.setBackgroundColor(0xFF000000);
+		if (android.os.Build.VERSION.SDK_INT > android.os.Build.VERSION_CODES.HONEYCOMB)
+			v.setLayerType(View.LAYER_TYPE_SOFTWARE, null);
+		
+		super.addView(v, -1, new FrameLayout.LayoutParams(FrameLayout.LayoutParams.MATCH_PARENT, FrameLayout.LayoutParams.MATCH_PARENT));
+		
+		mOverlayChild = count;
+		count++;
+		
+		if(getLeftMenuView() != null && mLeftMenuStyle.mMenuShadow > 0){
+			v = new View(getContext());
+			v.setBackgroundResource(mLeftMenuChild > mContentChild ? R.drawable.sm_rightshadow : R.drawable.sm_leftshadow);
+			super.addView(v, -1, new FrameLayout.LayoutParams(mLeftMenuStyle.mMenuShadow, FrameLayout.LayoutParams.MATCH_PARENT));
+			
+			mLeftShadowChild = count;
+			count++;
+		}
+		
+		if(getRightMenuView() != null && mRightMenuStyle.mMenuShadow > 0){
+			v = new View(getContext());
+			v.setBackgroundResource(mRightMenuChild > mContentChild ? R.drawable.sm_leftshadow : R.drawable.sm_rightshadow);	
+			super.addView(v, -1, new FrameLayout.LayoutParams(mRightMenuStyle.mMenuShadow, FrameLayout.LayoutParams.MATCH_PARENT));
+			
+			mRightShadowChild = count;
+			count++;
+		}
+		
+		if(getTopMenuView() != null && mTopMenuStyle.mMenuShadow > 0){
+			v = new View(getContext());
+			v.setBackgroundResource(mTopMenuChild > mContentChild ? R.drawable.sm_bottomshadow : R.drawable.sm_topshadow);				
+			super.addView(v, -1, new FrameLayout.LayoutParams(FrameLayout.LayoutParams.MATCH_PARENT, mTopMenuStyle.mMenuShadow));
+			
+			mTopShadowChild = count;
+			count++;
+		}
+		
+		if(getBottomMenuView() != null && mBottomMenuStyle.mMenuShadow > 0){
+			v = new View(getContext());
+			v.setBackgroundResource(mBottomMenuChild > mContentChild ? R.drawable.sm_topshadow :R.drawable.sm_bottomshadow);
+			super.addView(v, -1, new FrameLayout.LayoutParams(FrameLayout.LayoutParams.MATCH_PARENT, mBottomMenuStyle.mMenuShadow));
+			
+			mBottomShadowChild = count;
+			count++;
+		}
 	}
 	
-	protected View getTopMenuView(){		
-		return getChildAt(topMenuChild);
+	public View getLeftMenuView(){		
+		return getChildAt(mLeftMenuChild);
 	}
 	
-	protected View getBottomMenuView(){		
-		return getChildAt(bottomMenuChild);
+	public View getRightMenuView(){		
+		return getChildAt(mRightMenuChild);
 	}
 	
-	protected View getContentView(){		
-		return getChildAt(contentChild);
+	public View getTopMenuView(){		
+		return getChildAt(mTopMenuChild);
+	}
+	
+	public View getBottomMenuView(){		
+		return getChildAt(mBottomMenuChild);
+	}
+	
+	public View getContentView(){		
+		return getChildAt(mContentChild);
 	}
 		
 	protected View getRightShadowView(){		
-		return getChildAt(rightShadowChild);
+		return getChildAt(mRightShadowChild);
 	}
 	
 	protected View getLeftShadowView(){		
-		return getChildAt(leftShadowChild);
+		return getChildAt(mLeftShadowChild);
 	}
 	
 	protected View getTopShadowView(){		
-		return getChildAt(topShadowChild);
+		return getChildAt(mTopShadowChild);
 	}
 	
 	protected View getBottomShadowView(){		
-		return getChildAt(bottomShadowChild);
+		return getChildAt(mBottomShadowChild);
+	}
+	
+	protected View getOverlayView(){		
+		return getChildAt(mOverlayChild);
 	}
 			
 	protected void setLeftMenuView(int viewWidth, int viewHeight){
@@ -261,19 +393,17 @@ public class SlideLayout extends FrameLayout {
 		if(menu == null)
 			return;
 	    
-		if(leftMenuStyle.menuBorderPercent >= 0f)
-			leftMenuStyle.menuBorder = (int)(viewWidth * leftMenuStyle.menuBorderPercent);
-		if(leftMenuStyle.menuOverDragBorderPercent >= 0f)
-			leftMenuStyle.menuOverDragBorder = (int)(viewWidth * leftMenuStyle.menuOverDragBorderPercent);	
+		if(mLeftMenuStyle.mMenuBorderPercent >= 0f)
+			mLeftMenuStyle.mMenuBorder = (int)(viewWidth * mLeftMenuStyle.mMenuBorderPercent);
+		if(mLeftMenuStyle.mMenuOverDragBorderPercent >= 0f)
+			mLeftMenuStyle.mMenuOverDragBorder = (int)(viewWidth * mLeftMenuStyle.mMenuOverDragBorderPercent);	
 		
-		leftMenuStyle.size = viewWidth - leftMenuStyle.menuBorder;
-		if(leftMenuStyle.closeEdgePercent >= 0f)
-			leftMenuStyle.closeEdge = (int)(leftMenuStyle.size * leftMenuStyle.closeEdgePercent);
+		mLeftMenuStyle.mSize = viewWidth - mLeftMenuStyle.mMenuBorder;
+		if(mLeftMenuStyle.mCloseEdgePercent >= 0f)
+			mLeftMenuStyle.mCloseEdge = (int)(mLeftMenuStyle.mSize * mLeftMenuStyle.mCloseEdgePercent);
 		
-	    FrameLayout.LayoutParams layoutParams = new FrameLayout.LayoutParams(leftMenuStyle.size, FrameLayout.LayoutParams.MATCH_PARENT);
-	    layoutParams.setMargins(0, 0, 0, 0);
-        menu.setLayoutParams(layoutParams);
-        menu.setVisibility(offsetX <= 0 ? View.GONE : View.VISIBLE);	
+        menu.setLayoutParams(new FrameLayout.LayoutParams(mLeftMenuStyle.mSize, FrameLayout.LayoutParams.MATCH_PARENT));
+        menu.setVisibility(mOffsetX <= 0 ? View.GONE : View.VISIBLE);	
 	}
 	
 	protected void setRightMenuView(int viewWidth, int viewHeight){
@@ -281,19 +411,17 @@ public class SlideLayout extends FrameLayout {
 		if(menu == null)
 			return;
 	    
-		if(rightMenuStyle.menuBorderPercent >= 0f)
-			rightMenuStyle.menuBorder = (int)(viewWidth * rightMenuStyle.menuBorderPercent);
-		if(rightMenuStyle.menuOverDragBorderPercent >= 0f)
-			rightMenuStyle.menuOverDragBorder = (int)(viewWidth * rightMenuStyle.menuOverDragBorderPercent);	
+		if(mRightMenuStyle.mMenuBorderPercent >= 0f)
+			mRightMenuStyle.mMenuBorder = (int)(viewWidth * mRightMenuStyle.mMenuBorderPercent);
+		if(mRightMenuStyle.mMenuOverDragBorderPercent >= 0f)
+			mRightMenuStyle.mMenuOverDragBorder = (int)(viewWidth * mRightMenuStyle.mMenuOverDragBorderPercent);	
 		
-		rightMenuStyle.size = viewWidth - rightMenuStyle.menuBorder;
-		if(rightMenuStyle.closeEdgePercent >= 0f)
-			rightMenuStyle.closeEdge = (int)(rightMenuStyle.size * rightMenuStyle.closeEdgePercent);
+		mRightMenuStyle.mSize = viewWidth - mRightMenuStyle.mMenuBorder;
+		if(mRightMenuStyle.mCloseEdgePercent >= 0f)
+			mRightMenuStyle.mCloseEdge = (int)(mRightMenuStyle.mSize * mRightMenuStyle.mCloseEdgePercent);
 		
-	    FrameLayout.LayoutParams layoutParams = new FrameLayout.LayoutParams(rightMenuStyle.size, FrameLayout.LayoutParams.MATCH_PARENT);
-	    layoutParams.setMargins(0, 0, 0, 0);
-		menu.setLayoutParams(layoutParams);
-		menu.setVisibility(offsetX >= 0 ? View.GONE : View.VISIBLE);
+		menu.setLayoutParams(new FrameLayout.LayoutParams(mRightMenuStyle.mSize, FrameLayout.LayoutParams.MATCH_PARENT));
+		menu.setVisibility(mOffsetX >= 0 ? View.GONE : View.VISIBLE);
 	}
 	
 	protected void setTopMenuView(int viewWidth, int viewHeight){
@@ -301,19 +429,17 @@ public class SlideLayout extends FrameLayout {
 		if(menu == null)
 			return;
 	    
-		if(topMenuStyle.menuBorderPercent >= 0f)
-			topMenuStyle.menuBorder = (int)(viewWidth * topMenuStyle.menuBorderPercent);
-		if(topMenuStyle.menuOverDragBorderPercent >= 0f)
-			topMenuStyle.menuOverDragBorder = (int)(viewWidth * topMenuStyle.menuOverDragBorderPercent);
+		if(mTopMenuStyle.mMenuBorderPercent >= 0f)
+			mTopMenuStyle.mMenuBorder = (int)(viewWidth * mTopMenuStyle.mMenuBorderPercent);
+		if(mTopMenuStyle.mMenuOverDragBorderPercent >= 0f)
+			mTopMenuStyle.mMenuOverDragBorder = (int)(viewWidth * mTopMenuStyle.mMenuOverDragBorderPercent);
 		
-		topMenuStyle.size = viewHeight - topMenuStyle.menuBorder;
-		if(topMenuStyle.closeEdgePercent >= 0f)
-			topMenuStyle.closeEdge = (int)(topMenuStyle.size * topMenuStyle.closeEdgePercent);
+		mTopMenuStyle.mSize = viewHeight - mTopMenuStyle.mMenuBorder;
+		if(mTopMenuStyle.mCloseEdgePercent >= 0f)
+			mTopMenuStyle.mCloseEdge = (int)(mTopMenuStyle.mSize * mTopMenuStyle.mCloseEdgePercent);
 		
-	    FrameLayout.LayoutParams layoutParams = new FrameLayout.LayoutParams(FrameLayout.LayoutParams.MATCH_PARENT, topMenuStyle.size);
-	    layoutParams.setMargins(0, 0, 0, 0);
-		menu.setLayoutParams(layoutParams);
-		menu.setVisibility(offsetY <= 0 ? View.GONE : View.VISIBLE);
+		menu.setLayoutParams( new FrameLayout.LayoutParams(FrameLayout.LayoutParams.MATCH_PARENT, mTopMenuStyle.mSize));
+		menu.setVisibility(mOffsetY <= 0 ? View.GONE : View.VISIBLE);
 	}
 	
 	protected void setBottomMenuView(int viewWidth, int viewHeight){
@@ -321,19 +447,17 @@ public class SlideLayout extends FrameLayout {
 		if(menu == null)
 			return;
 	    
-		if(bottomMenuStyle.menuBorderPercent >= 0f)
-			bottomMenuStyle.menuBorder = (int)(viewWidth * bottomMenuStyle.menuBorderPercent);
-		if(bottomMenuStyle.menuOverDragBorderPercent >= 0f)
-			bottomMenuStyle.menuOverDragBorder = (int)(viewWidth * bottomMenuStyle.menuOverDragBorderPercent);
+		if(mBottomMenuStyle.mMenuBorderPercent >= 0f)
+			mBottomMenuStyle.mMenuBorder = (int)(viewWidth * mBottomMenuStyle.mMenuBorderPercent);
+		if(mBottomMenuStyle.mMenuOverDragBorderPercent >= 0f)
+			mBottomMenuStyle.mMenuOverDragBorder = (int)(viewWidth * mBottomMenuStyle.mMenuOverDragBorderPercent);
 		
-		bottomMenuStyle.size = viewHeight - bottomMenuStyle.menuBorder;
-		if(bottomMenuStyle.closeEdgePercent >= 0f)
-			bottomMenuStyle.closeEdge = (int)(bottomMenuStyle.size * bottomMenuStyle.closeEdgePercent);
+		mBottomMenuStyle.mSize = viewHeight - mBottomMenuStyle.mMenuBorder;
+		if(mBottomMenuStyle.mCloseEdgePercent >= 0f)
+			mBottomMenuStyle.mCloseEdge = (int)(mBottomMenuStyle.mSize * mBottomMenuStyle.mCloseEdgePercent);
 		
-	    FrameLayout.LayoutParams layoutParams = new FrameLayout.LayoutParams(FrameLayout.LayoutParams.MATCH_PARENT, bottomMenuStyle.size);
-	    layoutParams.setMargins(0, 0, 0, 0);
-		menu.setLayoutParams(layoutParams);
-		menu.setVisibility(offsetY >= 0 ? View.GONE : View.VISIBLE);
+		menu.setLayoutParams(new FrameLayout.LayoutParams(FrameLayout.LayoutParams.MATCH_PARENT, mBottomMenuStyle.mSize));
+		menu.setVisibility(mOffsetY >= 0 ? View.GONE : View.VISIBLE);
 	}
 	
 	protected void setContentView(int viewWidth, int viewHeight){
@@ -341,102 +465,41 @@ public class SlideLayout extends FrameLayout {
 		if(content == null)
 			return;
 	    
-	    FrameLayout.LayoutParams layoutParams = new FrameLayout.LayoutParams(FrameLayout.LayoutParams.MATCH_PARENT, FrameLayout.LayoutParams.MATCH_PARENT);
-	    layoutParams.setMargins(0, 0, 0, 0);
-		content.setLayoutParams(layoutParams);
+		content.setLayoutParams(new FrameLayout.LayoutParams(FrameLayout.LayoutParams.MATCH_PARENT, FrameLayout.LayoutParams.MATCH_PARENT));
 	}
 	
 	protected void setShadow(int viewWidth, int viewHeight){
-		int left = offsetX + getPaddingLeft();
-		int top = offsetY + getPaddingTop();
-		
-		if(getLeftShadowView() != null){
-			removeViewInLayout(getLeftShadowView());
-			leftShadowChild = -1;
-		}
-		
-		if(getRightShadowView() != null){
-			removeViewInLayout(getRightShadowView());
-			rightShadowChild = -1;
-		}
-		
-		if(getTopShadowView() != null){
-			removeViewInLayout(getTopShadowView());
-			topShadowChild = -1;
-		}
-		
-		if(getBottomShadowView() != null){
-			removeViewInLayout(getBottomShadowView());
-			bottomShadowChild = -1;
-		}
-		
-		if(getLeftMenuView() != null && leftMenuStyle.menuShadow > 0){
-			View v = new View(getContext());
-			v.setBackgroundResource(leftMenuChild > contentChild ? R.drawable.sm_rightshadow : R.drawable.sm_leftshadow);	
-			
-			FrameLayout.LayoutParams layoutParams = new FrameLayout.LayoutParams(leftMenuStyle.menuShadow, FrameLayout.LayoutParams.MATCH_PARENT);
-			layoutParams.setMargins(0, 0, 0, 0);					
-			addViewInLayout(v, -1, layoutParams);
-			
-			leftShadowChild = getChildCount() - 1;
-			v.setVisibility(left <= 0 ? View.GONE : View.VISIBLE);
-		}
-		
-		if(getRightMenuView() != null && rightMenuStyle.menuShadow > 0){
-			View v = new View(getContext());
-			v.setBackgroundResource(rightMenuChild > contentChild ? R.drawable.sm_leftshadow : R.drawable.sm_rightshadow);	
-			
-			FrameLayout.LayoutParams layoutParams = new FrameLayout.LayoutParams(rightMenuStyle.menuShadow, FrameLayout.LayoutParams.MATCH_PARENT);
-			layoutParams.setMargins(0, 0, 0, 0);					
-			addViewInLayout(v, -1, layoutParams);
-			
-			rightShadowChild = getChildCount() - 1;
-			v.setVisibility(left >= 0 ? View.GONE : View.VISIBLE);
-		}
-		
-		if(getTopMenuView() != null && topMenuStyle.menuShadow > 0){
-			View v = new View(getContext());
-			v.setBackgroundResource(topMenuChild > contentChild ? R.drawable.sm_bottomshadow : R.drawable.sm_topshadow);	
-			
-			FrameLayout.LayoutParams layoutParams = new FrameLayout.LayoutParams(FrameLayout.LayoutParams.MATCH_PARENT, topMenuStyle.menuShadow);
-			layoutParams.setMargins(0, 0, 0, 0);					
-			addViewInLayout(v, -1, layoutParams);
-			
-			topShadowChild = getChildCount() - 1;
-			v.setVisibility(top <= 0 ? View.GONE : View.VISIBLE);
-		}
-		
-		if(getBottomMenuView() != null && bottomMenuStyle.menuShadow > 0){
-			View v = new View(getContext());
-			v.setBackgroundResource(bottomMenuChild > contentChild ? R.drawable.sm_topshadow :R.drawable.sm_bottomshadow);	
-			
-			FrameLayout.LayoutParams layoutParams = new FrameLayout.LayoutParams(FrameLayout.LayoutParams.MATCH_PARENT, bottomMenuStyle.menuShadow);
-			layoutParams.setMargins(0, 0, 0, 0);					
-			addViewInLayout(v, -1, layoutParams);
-			
-			bottomShadowChild = getChildCount() - 1;
-			v.setVisibility(top >= 0 ? View.GONE : View.VISIBLE);
-		}
+		setVisibility(getOverlayView(), View.GONE);
+		setVisibility(getLeftShadowView(), mOffsetX <= 0 ? View.GONE : View.VISIBLE);
+		setVisibility(getRightShadowView(), mOffsetX >= 0 ? View.GONE : View.VISIBLE);
+		setVisibility(getTopShadowView(), mOffsetY <= 0 ? View.GONE : View.VISIBLE);
+		setVisibility(getBottomShadowView(), mOffsetY >= 0 ? View.GONE : View.VISIBLE);
 	}
 		
+	/**
+	 * Check if SlideMenu can be dragged or not
+	 */
 	public boolean isDragEnable(){
-		return dragEnable;
+		return mDragEnable;
 	}
 	
+	/**
+	 * Set SlideMenu can be dragged or not
+	 */
 	public void setDragEnable(boolean enable){
-		dragEnable = enable;
+		mDragEnable = enable;
 	}
-	
+		
 	public void setOnStateChangedListener(OnStateChangedListener listener){
 		if(listener == null)
-			listener_state = null;
+			mStateListener = null;
 		
-		listener_state = new WeakReference<OnStateChangedListener>(listener);
+		mStateListener = new WeakReference<OnStateChangedListener>(listener);
 	}
 	
 	public boolean dispatchTouchEvent(MotionEvent event){			
-		if(action == ACTION_SHOW){
-			switch (target) {
+		if(mAction == ACTION_SHOW){
+			switch (mTarget) {
 				case TARGET_CONTENT:
 					return dispatchTouchEventStateShowContent(event);
 				case TARGET_LEFT:
@@ -449,8 +512,8 @@ public class SlideLayout extends FrameLayout {
 					return dispatchTouchEventStateShowBottomMenu(event);
 			}
 		}
-		else if(action == ACTION_DRAG){
-			switch (target) {
+		else if(mAction == ACTION_DRAG){
+			switch (mTarget) {
 				case TARGET_LEFT:
 					return dispatchTouchEventStateDragLeftMenu(event);
 				case TARGET_RIGHT:
@@ -466,148 +529,116 @@ public class SlideLayout extends FrameLayout {
 	}
 	
 	private boolean dispatchTouchEventStateShowContent(MotionEvent event){
-		if(!dragEnable)
+		if(!mDragEnable)
 			return super.dispatchTouchEvent(event);
 		
 		if(event.getAction() ==  MotionEvent.ACTION_DOWN){
-			if((leftMenuStyle != null && event.getX() < leftMenuStyle.dragEdge) 
-					|| (rightMenuStyle != null && event.getX() > viewWidth - rightMenuStyle.dragEdge)
-					|| (topMenuStyle != null && event.getY() < topMenuStyle.dragEdge)
-					|| (bottomMenuStyle != null && event.getY() > viewHeight - bottomMenuStyle.dragEdge)){
-				downX = event.getX();
-				downY = event.getY();
-				prevX = downX;
-				prevY = downY;
-				disX = 0f;
-				disY = 0f;
+			if((mLeftMenuStyle != null && event.getX() < mLeftMenuStyle.mDragEdge) 
+					|| (mRightMenuStyle != null && event.getX() > mViewWidth - mRightMenuStyle.mDragEdge)
+					|| (mTopMenuStyle != null && event.getY() < mTopMenuStyle.mDragEdge)
+					|| (mBottomMenuStyle != null && event.getY() > mViewHeight - mBottomMenuStyle.mDragEdge)){
+				mDownX = event.getX();
+				mDownY = event.getY();
+				mPrevX = mDownX;
+				mPrevY = mDownY;
+				mDisX = 0f;
+				mDisY = 0f;
 				super.dispatchTouchEvent(event);
 				return true;
 			}
 		}
 		else if(event.getAction() ==  MotionEvent.ACTION_UP){
-			downX = -1;		
-			downY = -1;
+			mDownX = -1;		
+			mDownY = -1;
 		}
-		else if(event.getAction() == MotionEvent.ACTION_MOVE && downX > 0 && downY > 0){
-			if(getLeftMenuView() != null && downX < leftMenuStyle.dragEdge){
-				if(event.getX() >= prevX){
-					disX += event.getX() - prevX;
-					prevX = event.getX();
-					prevY = event.getY();
+		else if(event.getAction() == MotionEvent.ACTION_MOVE && mDownX > 0 && mDownY > 0){
+			if(getLeftMenuView() != null && mDownX < mLeftMenuStyle.mDragEdge){
+				if(event.getX() >= mPrevX){
+					mDisX += event.getX() - mPrevX;
+					mPrevX = event.getX();
+					mPrevY = event.getY();
 					
-					if(disX > leftMenuStyle.touchSlop){		
-						offsetX = Math.min(leftMenuStyle.size, Math.max(0, (int)(offsetX + disX)));
-						offsetViewX(offsetX);									
-						float alpha = (float)offsetX / (float)leftMenuStyle.size;
-						if(leftMenuChild > contentChild)
-							changeAlpha(getContentView(), 1f - alpha, TARGET_LEFT);						
-						else						
-							changeAlpha(getLeftMenuView(), alpha, TARGET_LEFT);						
+					if(mDisX > mLeftMenuStyle.mTouchSlop){		
+						mOffsetX = Math.min(mLeftMenuStyle.mSize, Math.max(0, (int)(mOffsetX + mDisX)));
+						offsetViewX(mOffsetX);										
+										
+						setState(mOffsetX < mLeftMenuStyle.mSize ? ACTION_DRAG : ACTION_SHOW, TARGET_LEFT, OP.START_DRAG_LEFT_FROM_CONTENT);
+						boolean result = cancelMotionEvent(event, null);
 												
-						MotionEvent cancelEvent = MotionEvent.obtain(event);
-	                    cancelEvent.setAction(MotionEvent.ACTION_CANCEL | (event.getActionIndex() << MotionEvent.ACTION_POINTER_INDEX_SHIFT));
-	                    setState(offsetX < leftMenuStyle.size ? ACTION_DRAG : ACTION_SHOW, TARGET_LEFT, OP.START_DRAG_LEFT_FROM_CONTENT);
-						boolean result = super.dispatchTouchEvent(cancelEvent);
-						cancelEvent.recycle();
+						dispatchOffsetChangedEvent((float)mOffsetX / (float)mLeftMenuStyle.mSize, 0f);
 						
-						dispatchOffsetChangedEvent(alpha, 0f);
-						
-						startDrag = true;						
+						mStartDrag = true;						
 						return result;								
 					}
 				}
 				else
-					downX = -1;
+					mDownX = -1;
 			}
-			else if(getRightMenuView() != null && downX > viewWidth - rightMenuStyle.dragEdge){
-				if(event.getX() <= prevX){
-					disX += prevX - event.getX();
-					prevX = event.getX();
-					prevY = event.getY();
+			else if(getRightMenuView() != null && mDownX > mViewWidth - mRightMenuStyle.mDragEdge){
+				if(event.getX() <= mPrevX){
+					mDisX += mPrevX - event.getX();
+					mPrevX = event.getX();
+					mPrevY = event.getY();
 					
-					if(disX > rightMenuStyle.touchSlop){								
-						offsetX = Math.max(-rightMenuStyle.size, Math.min(0, (int)(offsetX - disX)));
-						offsetViewX(offsetX);
-						float alpha = (float)-offsetX / (float)rightMenuStyle.size;
-						if(rightMenuChild > contentChild)
-							changeAlpha(getContentView(), 1f - alpha, TARGET_RIGHT);
-						else
-							changeAlpha(getRightMenuView(), alpha, TARGET_RIGHT);
+					if(mDisX > mRightMenuStyle.mTouchSlop){								
+						mOffsetX = Math.max(-mRightMenuStyle.mSize, Math.min(0, (int)(mOffsetX - mDisX)));
+						offsetViewX(mOffsetX);
 						
-						MotionEvent cancelEvent = MotionEvent.obtain(event);
-	                    cancelEvent.setAction(MotionEvent.ACTION_CANCEL | (event.getActionIndex() << MotionEvent.ACTION_POINTER_INDEX_SHIFT));		
-	                    setState(offsetX > -rightMenuStyle.size ? ACTION_DRAG : ACTION_SHOW, TARGET_RIGHT, OP.START_DRAG_RIGHT_FROM_CONTENT);
-						boolean result = super.dispatchTouchEvent(cancelEvent);
-						cancelEvent.recycle();
+						setState(mOffsetX > -mRightMenuStyle.mSize ? ACTION_DRAG : ACTION_SHOW, TARGET_RIGHT, OP.START_DRAG_RIGHT_FROM_CONTENT);
+						boolean result = cancelMotionEvent(event, null);
+												
+						dispatchOffsetChangedEvent((float)-mOffsetX / (float)mRightMenuStyle.mSize, 0f);
 						
-						dispatchOffsetChangedEvent(alpha, 0f);
-						
-						startDrag = true;
+						mStartDrag = true;
 						return result;								
 					}
 				}
 				else
-					downX = -1;
+					mDownX = -1;
 			}
-			else if(getTopMenuView() != null && downY < topMenuStyle.dragEdge){
-				if(event.getY() >= prevY){
-					disY += event.getY() - prevY;
-					prevY = event.getY();
-					prevX = event.getX();
+			else if(getTopMenuView() != null && mDownY < mTopMenuStyle.mDragEdge){
+				if(event.getY() >= mPrevY){
+					mDisY += event.getY() - mPrevY;
+					mPrevY = event.getY();
+					mPrevX = event.getX();
 					
-					if(disY > topMenuStyle.touchSlop){
-						offsetY = Math.min(topMenuStyle.size, Math.max(0, (int)(offsetY + disY)));
-						offsetViewY(offsetY);		
-						float alpha = (float)offsetY / (float)topMenuStyle.size;
-						if(topMenuChild > contentChild)
-							changeAlpha(getContentView(), 1f - alpha, TARGET_TOP);
-						else
-							changeAlpha(getTopMenuView(), alpha, TARGET_TOP);
+					if(mDisY > mTopMenuStyle.mTouchSlop){
+						mOffsetY = Math.min(mTopMenuStyle.mSize, Math.max(0, (int)(mOffsetY + mDisY)));
+						offsetViewY(mOffsetY);		
 						
-						MotionEvent cancelEvent = MotionEvent.obtain(event);
-	                    cancelEvent.setAction(MotionEvent.ACTION_CANCEL | (event.getActionIndex() << MotionEvent.ACTION_POINTER_INDEX_SHIFT));	
-	                    setState(offsetY < topMenuStyle.size ? ACTION_DRAG : ACTION_SHOW, TARGET_TOP, OP.START_DRAG_TOP_FROM_CONTENT);
-						boolean result = super.dispatchTouchEvent(cancelEvent);
-						cancelEvent.recycle();
+						setState(mOffsetY < mTopMenuStyle.mSize ? ACTION_DRAG : ACTION_SHOW, TARGET_TOP, OP.START_DRAG_TOP_FROM_CONTENT);
+						boolean result = cancelMotionEvent(event, null);
+												
+						dispatchOffsetChangedEvent(0f, (float)mOffsetY / (float)mTopMenuStyle.mSize);
 						
-						dispatchOffsetChangedEvent(0f, alpha);
-						
-						startDrag = true;
+						mStartDrag = true;
 						return result;
 					}
 				}
 				else
-					downY = -1;
+					mDownY = -1;
 			}
-			else if(getBottomMenuView() != null && downY > viewHeight - bottomMenuStyle.dragEdge){
-				if(event.getY() <= prevY){
-					disY += prevY - event.getY();
-					prevX = event.getX();
-					prevY = event.getY();
+			else if(getBottomMenuView() != null && mDownY > mViewHeight - mBottomMenuStyle.mDragEdge){
+				if(event.getY() <= mPrevY){
+					mDisY += mPrevY - event.getY();
+					mPrevX = event.getX();
+					mPrevY = event.getY();
 					
-					if(disY > bottomMenuStyle.touchSlop){
-						offsetY = Math.max(-bottomMenuStyle.size, Math.min(0, (int)(offsetY - disY)));
-						offsetViewY(offsetY);
-						float alpha = (float)-offsetY / (float)bottomMenuStyle.size;
-						if(bottomMenuChild > contentChild)
-							changeAlpha(getContentView(), 1f - alpha, TARGET_BOTTOM);
-						else
-							changeAlpha(getBottomMenuView(), alpha, TARGET_BOTTOM);
+					if(mDisY > mBottomMenuStyle.mTouchSlop){
+						mOffsetY = Math.max(-mBottomMenuStyle.mSize, Math.min(0, (int)(mOffsetY - mDisY)));
+						offsetViewY(mOffsetY);
 						
-						MotionEvent cancelEvent = MotionEvent.obtain(event);
-	                    cancelEvent.setAction(MotionEvent.ACTION_CANCEL | (event.getActionIndex() << MotionEvent.ACTION_POINTER_INDEX_SHIFT));				                    
-						setState(offsetY > -bottomMenuStyle.size ? ACTION_DRAG : ACTION_SHOW, TARGET_BOTTOM, OP.START_DRAG_BOTTOM_FROM_CONTENT);
-						boolean result = super.dispatchTouchEvent(cancelEvent);
-						cancelEvent.recycle();
+						setState(mOffsetY > -mBottomMenuStyle.mSize ? ACTION_DRAG : ACTION_SHOW, TARGET_BOTTOM, OP.START_DRAG_BOTTOM_FROM_CONTENT);
+						boolean result = cancelMotionEvent(event, null);
+												
+						dispatchOffsetChangedEvent(0f, (float)-mOffsetY / (float)mBottomMenuStyle.mSize);
 						
-						dispatchOffsetChangedEvent(0f, alpha);
-						
-						startDrag = true;
+						mStartDrag = true;
 						return result;								
 					}
 				}
 				else
-					downY = -1;
+					mDownY = -1;
 			}
 		}		
 			
@@ -615,66 +646,57 @@ public class SlideLayout extends FrameLayout {
 	}
 	
 	private boolean dispatchTouchEventStateShowLeftMenu(MotionEvent event){
-		if(leftMenuStyle.menuBorder == 0){
+		if(mLeftMenuStyle.mMenuBorder == 0){
 			if(event.getAction() ==  MotionEvent.ACTION_DOWN){
-				if(event.getX() > viewWidth - leftMenuStyle.dragEdge){
-					downX = event.getX();
-					downY = event.getY();
-					prevX = downX;
-					prevY = downY;
-					disX = 0f;
-					disY = 0f;
+				if(event.getX() > mViewWidth - mLeftMenuStyle.mDragEdge){
+					mDownX = event.getX();
+					mDownY = event.getY();
+					mPrevX = mDownX;
+					mPrevY = mDownY;
+					mDisX = 0f;
+					mDisY = 0f;
 				}
 			}
 			else if(event.getAction() ==  MotionEvent.ACTION_UP){
-				downX = -1;		
-				downY = -1;
+				mDownX = -1;		
+				mDownY = -1;
 			}
-			else if(event.getAction() == MotionEvent.ACTION_MOVE && downX > 0 && downY > 0){
-				if(event.getX() <= prevX){
-					disX += prevX - event.getX();
-					prevX = event.getX();
-					prevY = event.getY();
+			else if(event.getAction() == MotionEvent.ACTION_MOVE && mDownX > 0 && mDownY > 0){
+				if(event.getX() <= mPrevX){
+					mDisX += mPrevX - event.getX();
+					mPrevX = event.getX();
+					mPrevY = event.getY();
 					
-					if(disX > leftMenuStyle.touchSlop){								
-						offsetX = Math.min(leftMenuStyle.size, Math.max(0, (int)(event.getX())));
-						offsetViewX(offsetX);		
-						float alpha = (float)offsetX / (float)leftMenuStyle.size;
-						if(leftMenuChild > contentChild)
-							changeAlpha(getContentView(), 1f - alpha, TARGET_LEFT);
-						else
-							changeAlpha(getLeftMenuView(), alpha, TARGET_LEFT);
+					if(mDisX > mLeftMenuStyle.mTouchSlop){								
+						mOffsetX = Math.min(mLeftMenuStyle.mSize, Math.max(0, (int)(event.getX())));
+						offsetViewX(mOffsetX);		
 						
-						MotionEvent cancelEvent = MotionEvent.obtain(event);
-	                    cancelEvent.setAction(MotionEvent.ACTION_CANCEL | (event.getActionIndex() << MotionEvent.ACTION_POINTER_INDEX_SHIFT));				                    
-	                    setState(offsetX < leftMenuStyle.size ? ACTION_DRAG : ACTION_SHOW, TARGET_LEFT, OP.START_DRAG_LEFT_FROM_CONTENT);
-						boolean result = getLeftMenuView().dispatchTouchEvent(cancelEvent) || super.dispatchTouchEvent(cancelEvent);
-						cancelEvent.recycle();
-						
-						dispatchOffsetChangedEvent(alpha, 0f);												
+						setState(mOffsetX < mLeftMenuStyle.mSize ? ACTION_DRAG : ACTION_SHOW, TARGET_LEFT, OP.START_DRAG_LEFT_FROM_CONTENT);
+						boolean result = cancelMotionEvent(event, getLeftMenuView());
+												
+						dispatchOffsetChangedEvent((float)mOffsetX / (float)mLeftMenuStyle.mSize, 0f);												
 						return result;							
 					}
 				}
 				else
-					downX = -1;
+					mDownX = -1;
 			}
 		}
 		
-		if(!getLeftMenuView().dispatchTouchEvent(event)){
-			if(!dragEnable)
+		if(!mDragEnable || !mGestureDetector.onTouchEvent(event)){
+			if(!getLeftMenuView().dispatchTouchEvent(event))
 				return super.dispatchTouchEvent(event);
-			else if(!gestureDetector.onTouchEvent(event)){
-				return super.dispatchTouchEvent(event);
-			}
-		}
+		}		
+		else
+			getLeftMenuView().dispatchTouchEvent(event);	
 		
-		return true;
+		return true; 
 	}
 	
 	private boolean dispatchTouchEventStateDragLeftMenu(MotionEvent event){
-		if(!gestureDetector.onTouchEvent(event) && (event.getAction() == MotionEvent.ACTION_UP || event.getAction() == MotionEvent.ACTION_CANCEL)){
+		if(!mGestureDetector.onTouchEvent(event) && (event.getAction() == MotionEvent.ACTION_UP || event.getAction() == MotionEvent.ACTION_CANCEL)){
 			
-			if(offsetX < leftMenuStyle.closeEdge)
+			if(mOffsetX < mLeftMenuStyle.mCloseEdge)
 				closeLeftMenu(true);					
 			else
 				openLeftMenu(true);
@@ -684,69 +706,65 @@ public class SlideLayout extends FrameLayout {
 	}
 	
 	private boolean dispatchTouchEventStateShowRightMenu(MotionEvent event){
-		if(rightMenuStyle.menuBorder == 0){
+		if(mRightMenuStyle.mMenuBorder == 0){
 			if(event.getAction() ==  MotionEvent.ACTION_DOWN){
-				if(event.getX() < rightMenuStyle.dragEdge){
-					downX = event.getX();
-					downY = event.getY();
-					prevX = downX;
-					prevY = downY;
-					disX = 0f;
-					disY = 0f;
+				if(event.getX() < mRightMenuStyle.mDragEdge){
+					mDownX = event.getX();
+					mDownY = event.getY();
+					mPrevX = mDownX;
+					mPrevY = mDownY;
+					mDisX = 0f;
+					mDisY = 0f;
 				}
 			}
 			else if(event.getAction() ==  MotionEvent.ACTION_UP){
-				downX = -1;		
-				downY = -1;
+				mDownX = -1;		
+				mDownY = -1;
 			}
-			else if(event.getAction() == MotionEvent.ACTION_MOVE && downX > 0 && downY > 0){
-				if(event.getX() >= prevX){
-					disX += event.getX() - prevX;
-					prevX = event.getX();
-					prevY = event.getY();
+			else if(event.getAction() == MotionEvent.ACTION_MOVE && mDownX > 0 && mDownY > 0){
+				if(event.getX() >= mPrevX){
+					mDisX += event.getX() - mPrevX;
+					mPrevX = event.getX();
+					mPrevY = event.getY();
 					
-					if(disX > rightMenuStyle.touchSlop){
-						offsetX = Math.max(-rightMenuStyle.size, Math.min(0, (int)(event.getX() - viewWidth)));
-						offsetViewX(offsetX);
-						float alpha = (float)-offsetX / (float)rightMenuStyle.size;
-						if(rightMenuChild > contentChild)
-							changeAlpha(getContentView(), 1f - alpha, TARGET_RIGHT);
-						else
-							changeAlpha(getRightMenuView(), alpha, TARGET_RIGHT);
+					if(mDisX > mRightMenuStyle.mTouchSlop){
+						mOffsetX = Math.max(-mRightMenuStyle.mSize, Math.min(0, (int)(event.getX() - mViewWidth)));
+						offsetViewX(mOffsetX);
 						
-						MotionEvent cancelEvent = MotionEvent.obtain(event);
-	                    cancelEvent.setAction(MotionEvent.ACTION_CANCEL | (event.getActionIndex() << MotionEvent.ACTION_POINTER_INDEX_SHIFT));				                    
-	                    setState(offsetX > -rightMenuStyle.size ? ACTION_DRAG : ACTION_SHOW, TARGET_RIGHT, OP.START_DRAG_RIGHT_FROM_CONTENT);
-						boolean result = getRightMenuView().dispatchTouchEvent(cancelEvent) || super.dispatchTouchEvent(cancelEvent);
-						cancelEvent.recycle();
-						
-						dispatchOffsetChangedEvent(alpha, 0f);
+						setState(mOffsetX > -mRightMenuStyle.mSize ? ACTION_DRAG : ACTION_SHOW, TARGET_RIGHT, OP.START_DRAG_RIGHT_FROM_CONTENT);
+						boolean result = cancelMotionEvent(event, getRightMenuView());
+												
+						dispatchOffsetChangedEvent((float)-mOffsetX / (float)mRightMenuStyle.mSize, 0f);
 						
 						return result;		
 					}
 				}
 				else
-					downX = -1;
+					mDownX = -1;
 			}
 		}
-						
-		event.offsetLocation(-rightMenuStyle.menuBorder, 0);
-		if(!getRightMenuView().dispatchTouchEvent(event)){
-			event.offsetLocation(rightMenuStyle.menuBorder, 0);
+		
+		if(!mDragEnable || !mGestureDetector.onTouchEvent(event)){
+			event.offsetLocation(-mRightMenuStyle.mMenuBorder, 0);
 			
-			if(!dragEnable)
+			if(!getRightMenuView().dispatchTouchEvent(event)){
+				event.offsetLocation(mRightMenuStyle.mMenuBorder, 0);
 				return super.dispatchTouchEvent(event);
-			else if(!gestureDetector.onTouchEvent(event))
-				return super.dispatchTouchEvent(event);
+			}
+		}		
+		else{
+			event.offsetLocation(-mRightMenuStyle.mMenuBorder, 0);
+			getRightMenuView().dispatchTouchEvent(event);
+			event.offsetLocation(mRightMenuStyle.mMenuBorder, 0);
 		}
 		
-		return true;
+		return true; 		
 	}
 	
 	private boolean dispatchTouchEventStateDragRightMenu(MotionEvent event){
-		if(!gestureDetector.onTouchEvent(event) && (event.getAction() == MotionEvent.ACTION_UP || event.getAction() == MotionEvent.ACTION_CANCEL)){
+		if(!mGestureDetector.onTouchEvent(event) && (event.getAction() == MotionEvent.ACTION_UP || event.getAction() == MotionEvent.ACTION_CANCEL)){
 			
-			if(offsetX > -rightMenuStyle.closeEdge)
+			if(mOffsetX > -mRightMenuStyle.mCloseEdge)
 				closeRightMenu(true);
 			else
 				openRightMenu(true);
@@ -756,66 +774,67 @@ public class SlideLayout extends FrameLayout {
 	}
 	
 	private boolean dispatchTouchEventStateShowTopMenu(MotionEvent event){
-		if(topMenuStyle.menuBorder == 0){
+		if(mTopMenuStyle.mMenuBorder == 0){
 			if(event.getAction() ==  MotionEvent.ACTION_DOWN){
-				if(event.getY() > viewHeight - topMenuStyle.dragEdge){
-					downX = event.getX();
-					downY = event.getY();
-					prevX = downX;
-					prevY = downY;
-					disX = 0f;
-					disY = 0f;
+				if(event.getY() > mViewHeight - mTopMenuStyle.mDragEdge){
+					mDownX = event.getX();
+					mDownY = event.getY();
+					mPrevX = mDownX;
+					mPrevY = mDownY;
+					mDisX = 0f;
+					mDisY = 0f;
 				}
 			}
 			else if(event.getAction() ==  MotionEvent.ACTION_UP){
-				downX = -1;		
-				downY = -1;
+				mDownX = -1;		
+				mDownY = -1;
 			}
-			else if(event.getAction() == MotionEvent.ACTION_MOVE && downX > 0 && downY > 0){
-				if(event.getY() <= prevY){
-					disY += prevY - event.getY();
-					prevX = event.getX();
-					prevY = event.getY();
+			else if(event.getAction() == MotionEvent.ACTION_MOVE && mDownX > 0 && mDownY > 0){
+				if(event.getY() <= mPrevY){
+					mDisY += mPrevY - event.getY();
+					mPrevX = event.getX();
+					mPrevY = event.getY();
 					
-					if(disY > topMenuStyle.touchSlop){
-						offsetY = Math.min(topMenuStyle.size, Math.max(0, (int)(event.getY())));
-						offsetViewY(offsetY);		
-						float alpha = (float)offsetY / (float)topMenuStyle.size;
-						if(topMenuChild > contentChild)
-							changeAlpha(getContentView(), 1f - alpha, TARGET_TOP);
-						else
-							changeAlpha(getTopMenuView(), alpha, TARGET_TOP);
+					if(mDisY > mTopMenuStyle.mTouchSlop){
+						mOffsetY = Math.min(mTopMenuStyle.mSize, Math.max(0, (int)(event.getY())));
+						offsetViewY(mOffsetY);		
 						
-						MotionEvent cancelEvent = MotionEvent.obtain(event);
-	                    cancelEvent.setAction(MotionEvent.ACTION_CANCEL | (event.getActionIndex() << MotionEvent.ACTION_POINTER_INDEX_SHIFT));				                    
-	                    setState(offsetY < topMenuStyle.size ? ACTION_DRAG : ACTION_SHOW, TARGET_TOP, OP.START_DRAG_TOP_FROM_CONTENT);
-						boolean result = getTopMenuView().dispatchTouchEvent(cancelEvent) || super.dispatchTouchEvent(cancelEvent);
-						cancelEvent.recycle();
-						
-						dispatchOffsetChangedEvent(0f, alpha);
+						setState(mOffsetY < mTopMenuStyle.mSize ? ACTION_DRAG : ACTION_SHOW, TARGET_TOP, OP.START_DRAG_TOP_FROM_CONTENT);
+						boolean result = cancelMotionEvent(event, getTopMenuView());
+												
+						dispatchOffsetChangedEvent(0f, (float)mOffsetY / (float)mTopMenuStyle.mSize);
 						
 						return result;							
 					}
 				}
 				else
-					downY = -1;
+					mDownY = -1;
 			}
 		}
 		
-		if(!getTopMenuView().dispatchTouchEvent(event)){
-			if(!dragEnable)
+		if(!mDragEnable || !mGestureDetector.onTouchEvent(event)){
+			if(!getTopMenuView().dispatchTouchEvent(event))
 				return super.dispatchTouchEvent(event);
-			else if(!gestureDetector.onTouchEvent(event))
-				return super.dispatchTouchEvent(event);
-		}
+		}		
+		else
+			getTopMenuView().dispatchTouchEvent(event);	
 		
-		return true;
+		return true; 
+		
+//		if(!getTopMenuView().dispatchTouchEvent(event)){
+//			if(!dragEnable)
+//				return super.dispatchTouchEvent(event);
+//			else if(!gestureDetector.onTouchEvent(event))
+//				return super.dispatchTouchEvent(event);
+//		}
+//		
+//		return true;
 	}
 	
 	private boolean dispatchTouchEventStateDragTopMenu(MotionEvent event){
-		if(!gestureDetector.onTouchEvent(event) && (event.getAction() == MotionEvent.ACTION_UP || event.getAction() == MotionEvent.ACTION_CANCEL)){
+		if(!mGestureDetector.onTouchEvent(event) && (event.getAction() == MotionEvent.ACTION_UP || event.getAction() == MotionEvent.ACTION_CANCEL)){
 			
-			if(offsetY < topMenuStyle.closeEdge)
+			if(mOffsetY < mTopMenuStyle.mCloseEdge)
 				closeTopMenu(true);
 			else
 				openTopMenu(true);
@@ -825,68 +844,65 @@ public class SlideLayout extends FrameLayout {
 	}
 	
 	private boolean dispatchTouchEventStateShowBottomMenu(MotionEvent event){
-		if(bottomMenuStyle.menuBorder == 0){
+		if(mBottomMenuStyle.mMenuBorder == 0){
 			if(event.getAction() ==  MotionEvent.ACTION_DOWN){
-				if(event.getY() < bottomMenuStyle.dragEdge){
-					downX = event.getX();
-					downY = event.getY();
-					prevX = downX;
-					prevY = downY;
-					disX = 0f;
-					disY = 0f;
+				if(event.getY() < mBottomMenuStyle.mDragEdge){
+					mDownX = event.getX();
+					mDownY = event.getY();
+					mPrevX = mDownX;
+					mPrevY = mDownY;
+					mDisX = 0f;
+					mDisY = 0f;
 				}
 			}
 			else if(event.getAction() ==  MotionEvent.ACTION_UP){
-				downX = -1;		
-				downY = -1;
+				mDownX = -1;		
+				mDownY = -1;
 			}
-			else if(event.getAction() == MotionEvent.ACTION_MOVE && downX > 0 && downY > 0){
-				if(event.getY() >= prevY){
-					disY += event.getY() - prevY;
-					prevY = event.getY();
-					prevX = event.getX();
+			else if(event.getAction() == MotionEvent.ACTION_MOVE && mDownX > 0 && mDownY > 0){
+				if(event.getY() >= mPrevY){
+					mDisY += event.getY() - mPrevY;
+					mPrevY = event.getY();
+					mPrevX = event.getX();
 					
-					if(disY > bottomMenuStyle.touchSlop){
-						offsetY = Math.max(-bottomMenuStyle.size, Math.min(0, (int)(event.getY() - viewHeight)));
-						offsetViewY(offsetY);
-						float alpha = (float)-offsetY / (float)bottomMenuStyle.size;
-						if(bottomMenuChild > contentChild)
-							changeAlpha(getContentView(), 1f - alpha, TARGET_BOTTOM);
-						else
-							changeAlpha(getBottomMenuView(), alpha, TARGET_BOTTOM);
+					if(mDisY > mBottomMenuStyle.mTouchSlop){
+						mOffsetY = Math.max(-mBottomMenuStyle.mSize, Math.min(0, (int)(event.getY() - mViewHeight)));
+						offsetViewY(mOffsetY);
 						
-						MotionEvent cancelEvent = MotionEvent.obtain(event);
-	                    cancelEvent.setAction(MotionEvent.ACTION_CANCEL | (event.getActionIndex() << MotionEvent.ACTION_POINTER_INDEX_SHIFT));				                    
-	                    setState(offsetY > -bottomMenuStyle.size ? ACTION_DRAG : ACTION_SHOW, TARGET_BOTTOM, OP.START_DRAG_BOTTOM_FROM_CONTENT);
-						boolean result = getBottomMenuView().dispatchTouchEvent(cancelEvent) || super.dispatchTouchEvent(cancelEvent);
-						cancelEvent.recycle();
-						
-						dispatchOffsetChangedEvent(0f, alpha);
+						setState(mOffsetY > -mBottomMenuStyle.mSize ? ACTION_DRAG : ACTION_SHOW, TARGET_BOTTOM, OP.START_DRAG_BOTTOM_FROM_CONTENT);
+						boolean result = cancelMotionEvent(event, getBottomMenuView());
+												
+						dispatchOffsetChangedEvent(0f, (float)-mOffsetY / (float)mBottomMenuStyle.mSize);
 						
 						return result;	
 					}
 				}
 				else
-					downY = -1;
+					mDownY = -1;
 			}
 		}
 		
-		event.offsetLocation(-bottomMenuStyle.menuBorder, 0);
-		if(!getBottomMenuView().dispatchTouchEvent(event)){
-			event.offsetLocation(-bottomMenuStyle.menuBorder, 0);
-
-			if(!dragEnable)
+		if(!mDragEnable || !mGestureDetector.onTouchEvent(event)){
+			event.offsetLocation(0, -mBottomMenuStyle.mMenuBorder);
+			
+			if(!getBottomMenuView().dispatchTouchEvent(event)){
+				event.offsetLocation(0, mBottomMenuStyle.mMenuBorder);
 				return super.dispatchTouchEvent(event);
-			else if(!gestureDetector.onTouchEvent(event))
-				return super.dispatchTouchEvent(event);
+			}
+		}		
+		else{
+			event.offsetLocation(0, -mBottomMenuStyle.mMenuBorder);
+			getBottomMenuView().dispatchTouchEvent(event);
+			event.offsetLocation(0, mBottomMenuStyle.mMenuBorder);
 		}
-		return true;
+		
+		return true; 
 	}
 	
 	private boolean dispatchTouchEventStateDragBottomMenu(MotionEvent event){
-		if(!gestureDetector.onTouchEvent(event) && (event.getAction() == MotionEvent.ACTION_UP || event.getAction() == MotionEvent.ACTION_CANCEL)){
+		if(!mGestureDetector.onTouchEvent(event) && (event.getAction() == MotionEvent.ACTION_UP || event.getAction() == MotionEvent.ACTION_CANCEL)){
 			
-			if(offsetY > -bottomMenuStyle.closeEdge)
+			if(mOffsetY > -mBottomMenuStyle.mCloseEdge)
 				closeBottomMenu(true);
 			else
 				openBottomMenu(true);
@@ -895,31 +911,32 @@ public class SlideLayout extends FrameLayout {
 		return true;
 	}
 	
-	protected boolean onSingleTapUp(MotionEvent e) {
-		if(action != ACTION_SHOW)
+	protected boolean onSingleTapUp(MotionEvent e) {		
+		if(mAction != ACTION_SHOW)
 			return false;
 		
-		switch (target) {
+		switch (mTarget) {
 			case TARGET_LEFT:
-				if(e.getX() > leftMenuStyle.size){
+				if(e.getX() > mLeftMenuStyle.mSize){
 					closeLeftMenu(true);
 					return true;
 				}
 				break;
 			case TARGET_RIGHT:
-				if(e.getX() < viewWidth - rightMenuStyle.size){
+				
+				if(e.getX() < mViewWidth - mRightMenuStyle.mSize){
 					closeRightMenu(true);
 					return true;
 				}
 				break;	
 			case TARGET_TOP:
-				if(e.getY() > topMenuStyle.size){
+				if(e.getY() > mTopMenuStyle.mSize){
 					closeTopMenu(true);
 					return true;
 				}
 				break;	
 			case TARGET_BOTTOM:
-				if(e.getY() < viewHeight - bottomMenuStyle.size){
+				if(e.getY() < mViewHeight - mBottomMenuStyle.mSize){
 					closeBottomMenu(true);
 					return true;
 				}
@@ -930,160 +947,108 @@ public class SlideLayout extends FrameLayout {
 	}
 	
 	protected boolean onScroll(MotionEvent e1, MotionEvent e2, float distanceX, float distanceY) {
-		if(action == ACTION_SHOW){
-			switch (target) {
+		if(mAction == ACTION_SHOW){
+			switch (mTarget) {
 				case TARGET_LEFT:				
-					if(e1 != null && e1.getX() > leftMenuStyle.size && distanceX > 0){
-						offsetX =  Math.min(leftMenuStyle.size, Math.max(0, offsetX - (int)distanceX));
-						offsetViewX(offsetX);
-						float alpha = (float)offsetX / (float)leftMenuStyle.size;
-						if(leftMenuChild > contentChild)
-							changeAlpha(getContentView(), 1f - alpha, TARGET_LEFT);
-						else
-							changeAlpha(getLeftMenuView(), alpha, TARGET_LEFT);
+					if(e1 != null && e1.getX() > mLeftMenuStyle.mSize && distanceX > 0){
+						mOffsetX =  Math.min(mLeftMenuStyle.mSize, Math.max(0, mOffsetX - (int)distanceX));
+						offsetViewX(mOffsetX);
 						
-						MotionEvent cancelEvent = MotionEvent.obtain(e2);
-	                    cancelEvent.setAction(MotionEvent.ACTION_CANCEL | (e2.getActionIndex() << MotionEvent.ACTION_POINTER_INDEX_SHIFT));
-						super.dispatchTouchEvent(cancelEvent);
-						cancelEvent.recycle();
-						
-						if(offsetX > 0)
+						cancelMotionEvent(e2, null);
+												
+						if(mOffsetX > 0)
 							setState(ACTION_DRAG, TARGET_LEFT, OP.START_DRAG_LEFT_FROM_MENU);
 						else
 							setState(ACTION_SHOW, TARGET_CONTENT, OP.START_DRAG_LEFT_FROM_MENU);
 						
-						dispatchOffsetChangedEvent(alpha, 0f);					
+						dispatchOffsetChangedEvent((float)mOffsetX / (float)mLeftMenuStyle.mSize, 0f);					
 						return true;
 					}	
 					break;
 				case TARGET_RIGHT:				
-					if(e1 != null && e1.getX() < viewWidth - rightMenuStyle.size && distanceX < 0){					
-						offsetX =  Math.max(-rightMenuStyle.size, Math.min(0, offsetX - (int)distanceX));
-						offsetViewX(offsetX);
-						float alpha = (float)-offsetX / (float)rightMenuStyle.size;
-						if(rightMenuChild > contentChild)
-							changeAlpha(getContentView(), 1f - alpha, TARGET_RIGHT);
-						else
-							changeAlpha(getRightMenuView(), alpha, TARGET_RIGHT);
+					if(e1 != null && e1.getX() < mViewWidth - mRightMenuStyle.mSize && distanceX < 0){					
+						mOffsetX =  Math.max(-mRightMenuStyle.mSize, Math.min(0, mOffsetX - (int)distanceX));
+						offsetViewX(mOffsetX);
 						
-						MotionEvent cancelEvent = MotionEvent.obtain(e2);
-	                    cancelEvent.setAction(MotionEvent.ACTION_CANCEL | (e2.getActionIndex() << MotionEvent.ACTION_POINTER_INDEX_SHIFT));
-						super.dispatchTouchEvent(cancelEvent);
-						cancelEvent.recycle();
-						
-						if(offsetX < 0)
+						cancelMotionEvent(e2, null);
+												
+						if(mOffsetX < 0)
 							setState(ACTION_DRAG, TARGET_RIGHT, OP.START_DRAG_RIGHT_FROM_MENU);
 						else
 							setState(ACTION_SHOW, TARGET_CONTENT, OP.START_DRAG_RIGHT_FROM_MENU);
-						dispatchOffsetChangedEvent(alpha, 0f);	
+						dispatchOffsetChangedEvent((float)-mOffsetX / (float)mRightMenuStyle.mSize, 0f);	
 						return true;
 					}	
 					break;	
 				case TARGET_TOP:				
-					if(e1 != null && e1.getY() > topMenuStyle.size && distanceY > 0){					
-						offsetY =  Math.min(topMenuStyle.size, Math.max(0, offsetY - (int)distanceY));
-						offsetViewY(offsetY);
-						float alpha = (float)offsetY / (float)topMenuStyle.size;
-						if(topMenuChild > contentChild)
-							changeAlpha(getContentView(), 1f - alpha, TARGET_TOP);
-						else
-							changeAlpha(getTopMenuView(), alpha, TARGET_TOP);
+					if(e1 != null && e1.getY() > mTopMenuStyle.mSize && distanceY > 0){					
+						mOffsetY =  Math.min(mTopMenuStyle.mSize, Math.max(0, mOffsetY - (int)distanceY));
+						offsetViewY(mOffsetY);
 						
-						MotionEvent cancelEvent = MotionEvent.obtain(e2);
-	                    cancelEvent.setAction(MotionEvent.ACTION_CANCEL | (e2.getActionIndex() << MotionEvent.ACTION_POINTER_INDEX_SHIFT));
-						super.dispatchTouchEvent(cancelEvent);
-						cancelEvent.recycle();
-						
-						if(offsetY > 0)
+						cancelMotionEvent(e2, null);
+												
+						if(mOffsetY > 0)
 							setState(ACTION_DRAG, TARGET_TOP, OP.START_DRAG_TOP_FROM_MENU);
 						else
 							setState(ACTION_SHOW, TARGET_CONTENT, OP.START_DRAG_TOP_FROM_MENU);						
-						dispatchOffsetChangedEvent(0f, alpha);	
+						dispatchOffsetChangedEvent(0f, (float)mOffsetY / (float)mTopMenuStyle.mSize);	
 						return true;
 					}	
 					break;
 				case TARGET_BOTTOM:				
-					if(e1 != null && e1.getY() < viewHeight - bottomMenuStyle.size && distanceY < 0){					
-						offsetY =  Math.max(-bottomMenuStyle.size, Math.min(0, offsetY - (int)distanceY));
-						offsetViewY(offsetY);
-						float alpha = (float)-offsetY / (float)bottomMenuStyle.size;
-						if(bottomMenuChild > contentChild)
-							changeAlpha(getContentView(), 1f - alpha, TARGET_BOTTOM);
-						else
-							changeAlpha(getBottomMenuView(), alpha, TARGET_BOTTOM);
+					if(e1 != null && e1.getY() < mViewHeight - mBottomMenuStyle.mSize && distanceY < 0){					
+						mOffsetY =  Math.max(-mBottomMenuStyle.mSize, Math.min(0, mOffsetY - (int)distanceY));
+						offsetViewY(mOffsetY);					
 						
-						MotionEvent cancelEvent = MotionEvent.obtain(e2);
-	                    cancelEvent.setAction(MotionEvent.ACTION_CANCEL | (e2.getActionIndex() << MotionEvent.ACTION_POINTER_INDEX_SHIFT));
-						super.dispatchTouchEvent(cancelEvent);
-						cancelEvent.recycle();
-						
-						if(offsetY < 0)
+						cancelMotionEvent(e2, null);
+												
+						if(mOffsetY < 0)
 							setState(ACTION_DRAG, TARGET_BOTTOM, OP.START_DRAG_BOTTOM_FROM_MENU);
 						else
 							setState(ACTION_SHOW, TARGET_CONTENT, OP.START_DRAG_BOTTOM_FROM_MENU);	
-						dispatchOffsetChangedEvent(0f, alpha);	
+						dispatchOffsetChangedEvent(0f, (float)-mOffsetY / (float)mBottomMenuStyle.mSize);	
 						return true;
 					}	
 					break;
 			}
 		}
-		else if(action == ACTION_DRAG){
-			switch (target) {
+		else if(mAction == ACTION_DRAG){
+			switch (mTarget) {
 				case TARGET_LEFT:
-					if(startDrag){
-						startDrag = false;
+					if(mStartDrag){
+						mStartDrag = false;
 						return true;
 					}
-					offsetX = Math.min(leftMenuStyle.overDrag ? viewWidth - leftMenuStyle.menuOverDragBorder : leftMenuStyle.size, Math.max(0, offsetX - (int)distanceX));
-					offsetViewX(offsetX);
-					float alpha = (float)offsetX / (float)leftMenuStyle.size;
-					if(leftMenuChild > contentChild)
-						changeAlpha(getContentView(), 1f - alpha, TARGET_LEFT);					
-					else
-						changeAlpha(getLeftMenuView(), alpha, TARGET_LEFT);		
-					dispatchOffsetChangedEvent(alpha, 0f);	
+					mOffsetX = Math.min(mLeftMenuStyle.mOverDrag ? mViewWidth - mLeftMenuStyle.mMenuOverDragBorder : mLeftMenuStyle.mSize, Math.max(0, mOffsetX - (int)distanceX));
+					offsetViewX(mOffsetX);				
+					dispatchOffsetChangedEvent((float)mOffsetX / (float)mLeftMenuStyle.mSize, 0f);	
 					return true;
 				case TARGET_RIGHT:
-					if(startDrag){
-						startDrag = false;
+					if(mStartDrag){
+						mStartDrag = false;
 						return true;
 					}				
-					offsetX = Math.max(rightMenuStyle.overDrag ? rightMenuStyle.menuOverDragBorder - viewWidth : -rightMenuStyle.size, Math.min(0, offsetX - (int)distanceX));
-					offsetViewX(offsetX);
-					alpha = (float)-offsetX / (float)rightMenuStyle.size;
-					if(rightMenuChild > contentChild)
-						changeAlpha(getContentView(), 1f - alpha, TARGET_RIGHT);
-					else
-						changeAlpha(getRightMenuView(), alpha, TARGET_RIGHT);	
-					dispatchOffsetChangedEvent(alpha, 0f);	
+					mOffsetX = Math.max(mRightMenuStyle.mOverDrag ? mRightMenuStyle.mMenuOverDragBorder - mViewWidth : -mRightMenuStyle.mSize, Math.min(0, mOffsetX - (int)distanceX));
+					offsetViewX(mOffsetX);
+					dispatchOffsetChangedEvent((float)-mOffsetX / (float)mRightMenuStyle.mSize, 0f);	
 					return true;	
 				case TARGET_TOP:
-					if(startDrag){
-						startDrag = false;
+					if(mStartDrag){
+						mStartDrag = false;
 						return true;
 					}	
-					offsetY = Math.min(topMenuStyle.overDrag ? viewHeight - topMenuStyle.menuOverDragBorder : topMenuStyle.size, Math.max(0, offsetY - (int)distanceY));
-					offsetViewY(offsetY);
-					alpha = (float)offsetY / (float)topMenuStyle.size;
-					if(topMenuChild > contentChild)
-						changeAlpha(getContentView(), 1f - alpha, TARGET_TOP);
-					else
-						changeAlpha(getTopMenuView(), alpha, TARGET_TOP);	
-					dispatchOffsetChangedEvent(0f, alpha);	
+					mOffsetY = Math.min(mTopMenuStyle.mOverDrag ? mViewHeight - mTopMenuStyle.mMenuOverDragBorder : mTopMenuStyle.mSize, Math.max(0, mOffsetY - (int)distanceY));
+					offsetViewY(mOffsetY);
+					dispatchOffsetChangedEvent(0f, (float)mOffsetY / (float)mTopMenuStyle.mSize);	
 					return true;
 				case TARGET_BOTTOM:
-					if(startDrag){
-						startDrag = false;
+					if(mStartDrag){
+						mStartDrag = false;
 						return true;
 					}				
-					offsetY = Math.max(bottomMenuStyle.overDrag ? bottomMenuStyle.menuOverDragBorder - viewHeight : -bottomMenuStyle.size, Math.min(0, offsetY - (int)distanceY));
-					offsetViewY(offsetY);
-					alpha = (float)-offsetY / (float)bottomMenuStyle.size;
-					if(bottomMenuChild > contentChild)
-						changeAlpha(getContentView(), 1f - alpha, TARGET_BOTTOM);
-					else
-						changeAlpha(getBottomMenuView(), alpha, TARGET_BOTTOM);		
-					dispatchOffsetChangedEvent(0f, alpha);	
+					mOffsetY = Math.max(mBottomMenuStyle.mOverDrag ? mBottomMenuStyle.mMenuOverDragBorder - mViewHeight : -mBottomMenuStyle.mSize, Math.min(0, mOffsetY - (int)distanceY));
+					offsetViewY(mOffsetY);
+					dispatchOffsetChangedEvent(0f, (float)-mOffsetY / (float)mBottomMenuStyle.mSize);	
 					return true;
 			}
 		}		
@@ -1091,34 +1056,34 @@ public class SlideLayout extends FrameLayout {
 	}
 	
 	protected boolean onFling(MotionEvent e1, MotionEvent e2, float velocityX, float velocityY) {
-		if(action == ACTION_SHOW || action == ACTION_DRAG){
-			switch (target) {
+		if(mAction == ACTION_SHOW || mAction == ACTION_DRAG){
+			switch (mTarget) {
 				case TARGET_LEFT:
-					if(velocityX > leftMenuStyle.velocitySlop){
-						if(offsetX != leftMenuStyle.size)
+					if(velocityX > mLeftMenuStyle.mVelocitySlop){
+						if(mOffsetX != mLeftMenuStyle.mSize)
 							openLeftMenu(true);
 						else
 							setState(ACTION_SHOW, TARGET_LEFT, OP.FLING_LEFT);	
 						return true;
 					}
-					else if(velocityX < -leftMenuStyle.velocitySlop){
-						if(offsetX > 0)
+					else if(velocityX < -mLeftMenuStyle.mVelocitySlop){
+						if(mOffsetX > 0)
 							closeLeftMenu(true);
 						else
 							setState(ACTION_SHOW, TARGET_CONTENT, OP.FLING_LEFT);
 						return true;
 					}
 					break;
-				case TARGET_RIGHT:
-					if(velocityX < -rightMenuStyle.velocitySlop){
-						if(offsetX != -rightMenuStyle.size)
+				case TARGET_RIGHT:					
+					if(velocityX < -mRightMenuStyle.mVelocitySlop){
+						if(mOffsetX != -mRightMenuStyle.mSize)
 							openRightMenu(true);
 						else
 							setState(ACTION_SHOW, TARGET_RIGHT, OP.FLING_RIGHT);	
 						return true;
 					}
-					else if(velocityX > rightMenuStyle.velocitySlop){
-						if(offsetX < 0)
+					else if(velocityX > mRightMenuStyle.mVelocitySlop){
+						if(mOffsetX < 0)
 							closeRightMenu(true);
 						else
 							setState(ACTION_SHOW, TARGET_CONTENT, OP.FLING_RIGHT);	
@@ -1126,15 +1091,15 @@ public class SlideLayout extends FrameLayout {
 					}
 					break;	
 				case TARGET_TOP:
-					if(velocityY > topMenuStyle.velocitySlop){
-						if(offsetY != topMenuStyle.size)
+					if(velocityY > mTopMenuStyle.mVelocitySlop){
+						if(mOffsetY != mTopMenuStyle.mSize)
 							openTopMenu(true);
 						else
 							setState(ACTION_SHOW, TARGET_TOP, OP.FLING_TOP);	
 						return true;
 					}
-					else if(velocityY < -topMenuStyle.velocitySlop){
-						if(offsetY > 0)
+					else if(velocityY < -mTopMenuStyle.mVelocitySlop){
+						if(mOffsetY > 0)
 							closeTopMenu(true);
 						else
 							setState(ACTION_SHOW, TARGET_CONTENT, OP.FLING_TOP);
@@ -1142,15 +1107,15 @@ public class SlideLayout extends FrameLayout {
 					}
 					break;
 				case TARGET_BOTTOM:
-					if(velocityY < -bottomMenuStyle.velocitySlop){
-						if(offsetY != -bottomMenuStyle.size)
+					if(velocityY < -mBottomMenuStyle.mVelocitySlop){
+						if(mOffsetY != -mBottomMenuStyle.mSize)
 							openBottomMenu(true);
 						else
 							setState(ACTION_SHOW, TARGET_BOTTOM, OP.FLING_BOTTOM);	
 						return true;
 					}
-					else if(velocityY > bottomMenuStyle.velocitySlop){
-						if(offsetY < 0)
+					else if(velocityY > mBottomMenuStyle.mVelocitySlop){
+						if(mOffsetY < 0)
 							closeBottomMenu(true);
 						else
 							setState(ACTION_SHOW, TARGET_CONTENT, OP.FLING_BOTTOM);	
@@ -1162,11 +1127,15 @@ public class SlideLayout extends FrameLayout {
 		return false;
 	}
 	
+	/**
+	 * Close any menu if it is opened
+	 * @param animation true: show closing animation, false: close immediately
+	 */
 	public void closeAllMenu(boolean animation){
 		if(isState(ACTION_SHOW, TARGET_CONTENT))
 			return;
 		
-		switch (target) {
+		switch (mTarget) {
 			case TARGET_LEFT:
 				closeLeftMenu(animation);
 				break;
@@ -1186,14 +1155,13 @@ public class SlideLayout extends FrameLayout {
 		if(getLeftMenuView() == null || (!isState(ACTION_SHOW, TARGET_CONTENT) && !isState(ACTION_DRAG, TARGET_LEFT)))
 			return;
 		
-		long duration = (long)Math.abs(leftMenuStyle.animDuration * ((float)(leftMenuStyle.size - offsetX) / (float)leftMenuStyle.size));		
+		long duration = (long)Math.abs(mLeftMenuStyle.mAnimDuration * ((float)(mLeftMenuStyle.mSize - mOffsetX) / (float)mLeftMenuStyle.mSize));		
 		getLeftMenuView().clearAnimation();
 		
 		if(animation && duration > 0){
 			setState(ACTION_OPEN, TARGET_LEFT, OP.OPEN_LEFT);	
-			SlideLeftAnimation anim = new SlideLeftAnimation(true);
+			SlideAnimation anim = new SlideAnimation(true);
 			anim.setDuration(duration);
-			anim.setInterpolator(interpolator);
 			anim.setAnimationListener(new Animation.AnimationListener() {			
 				@Override
 				public void onAnimationStart(Animation animation) {}
@@ -1206,16 +1174,12 @@ public class SlideLayout extends FrameLayout {
 					setState(ACTION_SHOW, TARGET_LEFT, OP.OPEN_LEFT);	
 				}
 			});
-			getLeftMenuView().startAnimation(anim);
+			this.startAnimation(anim);
 		}
 		else{	
 			setState(ACTION_SHOW, TARGET_LEFT, OP.OPEN_LEFT);	
-			offsetX = leftMenuStyle.size;
-			offsetViewX(offsetX);
-			if(leftMenuChild > contentChild)
-				changeAlpha(getContentView(), 0f, TARGET_LEFT);
-			else
-				changeAlpha(getLeftMenuView(), 1f, TARGET_LEFT);
+			mOffsetX = mLeftMenuStyle.mSize;
+			offsetViewX(mOffsetX);
 		}		
 	}
 	
@@ -1223,14 +1187,13 @@ public class SlideLayout extends FrameLayout {
 		if(getLeftMenuView() == null || (!isState(ACTION_SHOW, TARGET_LEFT) && !isState(ACTION_DRAG, TARGET_LEFT)))
 			return;
 		
-		long duration = (long)(leftMenuStyle.animDuration * ((float)offsetX / (float)leftMenuStyle.size));				
+		long duration = (long)(mLeftMenuStyle.mAnimDuration * ((float)mOffsetX / (float)mLeftMenuStyle.mSize));				
 		getLeftMenuView().clearAnimation();
 		
 		if(animation && duration > 0){
 			setState(ACTION_CLOSE, TARGET_LEFT, OP.CLOSE_LEFT);
-			SlideLeftAnimation anim = new SlideLeftAnimation(false);
+			SlideAnimation anim = new SlideAnimation(false);
 			anim.setDuration(duration);
-			anim.setInterpolator(interpolator);
 			anim.setAnimationListener(new Animation.AnimationListener() {			
 				@Override
 				public void onAnimationStart(Animation animation) {}
@@ -1243,14 +1206,12 @@ public class SlideLayout extends FrameLayout {
 					setState(ACTION_SHOW, TARGET_CONTENT, OP.CLOSE_LEFT);
 				}
 			});
-			getLeftMenuView().startAnimation(anim);
+			this.startAnimation(anim);
 		}
 		else{		
 			setState(ACTION_SHOW, TARGET_CONTENT, OP.CLOSE_LEFT);
-			offsetX = 0;
-			offsetViewX(offsetX);	
-			if(leftMenuChild > contentChild)
-				changeAlpha(getContentView(), 1f, TARGET_LEFT);
+			mOffsetX = 0;
+			offsetViewX(mOffsetX);	
 		}	
 	}
 	
@@ -1258,14 +1219,13 @@ public class SlideLayout extends FrameLayout {
 		if(getRightMenuView() == null || (!isState(ACTION_SHOW, TARGET_CONTENT) && !isState(ACTION_DRAG, TARGET_RIGHT)))
 			return;
 				
-		long duration = (long)Math.abs(rightMenuStyle.animDuration * ((float)(offsetX + rightMenuStyle.size) / (float)rightMenuStyle.size));		
+		long duration = (long)Math.abs(mRightMenuStyle.mAnimDuration * ((float)(mOffsetX + mRightMenuStyle.mSize) / (float)mRightMenuStyle.mSize));		
 		getRightMenuView().clearAnimation();
 		
 		if(animation && duration > 0){
 			setState(ACTION_OPEN, TARGET_RIGHT, OP.OPEN_RIGHT);	
-			SlideRightAnimation anim = new SlideRightAnimation(true);
+			SlideAnimation anim = new SlideAnimation(true);
 			anim.setDuration(duration);
-			anim.setInterpolator(interpolator);
 			anim.setAnimationListener(new Animation.AnimationListener() {			
 				@Override
 				public void onAnimationStart(Animation animation) {}
@@ -1278,16 +1238,12 @@ public class SlideLayout extends FrameLayout {
 					setState(ACTION_SHOW, TARGET_RIGHT, OP.OPEN_RIGHT);	
 				}
 			});
-			getRightMenuView().startAnimation(anim);
+			this.startAnimation(anim);
 		}
 		else{		
 			setState(ACTION_SHOW, TARGET_RIGHT, OP.OPEN_RIGHT);	
-			offsetX = -rightMenuStyle.size;
-			offsetViewX(offsetX);
-			if(rightMenuChild > contentChild)
-				changeAlpha(getContentView(), 0f, TARGET_RIGHT);
-			else
-				changeAlpha(getRightMenuView(), 1f, TARGET_RIGHT);
+			mOffsetX = -mRightMenuStyle.mSize;
+			offsetViewX(mOffsetX);
 		}
 	}
 			
@@ -1295,14 +1251,13 @@ public class SlideLayout extends FrameLayout {
 		if(getRightMenuView() == null || (!isState(ACTION_SHOW, TARGET_RIGHT) && !isState(ACTION_DRAG, TARGET_RIGHT)))
 			return;
 		
-		long duration = (long)(rightMenuStyle.animDuration * ((float)-offsetX/ (float)rightMenuStyle.size));		
+		long duration = (long)(mRightMenuStyle.mAnimDuration * ((float)-mOffsetX/ (float)mRightMenuStyle.mSize));		
 		getRightMenuView().clearAnimation();
 		
 		if(animation && duration > 0){
 			setState(ACTION_CLOSE, TARGET_RIGHT, OP.CLOSE_RIGHT);
-			SlideRightAnimation anim = new SlideRightAnimation(false);
+			SlideAnimation anim = new SlideAnimation(false);
 			anim.setDuration(duration);
-			anim.setInterpolator(interpolator);
 			anim.setAnimationListener(new Animation.AnimationListener() {			
 				@Override
 				public void onAnimationStart(Animation animation) {}
@@ -1315,14 +1270,12 @@ public class SlideLayout extends FrameLayout {
 					setState(ACTION_SHOW, TARGET_CONTENT, OP.CLOSE_RIGHT);
 				}
 			});
-			getRightMenuView().startAnimation(anim);
+			this.startAnimation(anim);
 		}
 		else{
 			setState(ACTION_SHOW, TARGET_CONTENT, OP.CLOSE_RIGHT);
-			offsetX = 0;
-			offsetViewX(offsetX);		
-			if(rightMenuChild > contentChild)
-				changeAlpha(getContentView(), 1f, TARGET_RIGHT);
+			mOffsetX = 0;
+			offsetViewX(mOffsetX);		
 		}
 	}
 	
@@ -1330,14 +1283,13 @@ public class SlideLayout extends FrameLayout {
 		if(getTopMenuView() == null || (!isState(ACTION_SHOW, TARGET_CONTENT) && !isState(ACTION_DRAG, TARGET_TOP)))
 			return;
 		
-		long duration = (long)Math.abs(topMenuStyle.animDuration * ((float)(topMenuStyle.size - offsetY) / (float)topMenuStyle.size));		
+		long duration = (long)Math.abs(mTopMenuStyle.mAnimDuration * ((float)(mTopMenuStyle.mSize - mOffsetY) / (float)mTopMenuStyle.mSize));		
 		getTopMenuView().clearAnimation();
 		
 		if(animation && duration > 0){
 			setState(ACTION_OPEN, TARGET_TOP, OP.OPEN_TOP);	
-			SlideTopAnimation anim = new SlideTopAnimation(true);
+			SlideAnimation anim = new SlideAnimation(true);
 			anim.setDuration(duration);
-			anim.setInterpolator(interpolator);
 			anim.setAnimationListener(new Animation.AnimationListener() {			
 				@Override
 				public void onAnimationStart(Animation animation) {}
@@ -1350,16 +1302,12 @@ public class SlideLayout extends FrameLayout {
 					setState(ACTION_SHOW, TARGET_TOP, OP.OPEN_TOP);	
 				}
 			});
-			getTopMenuView().startAnimation(anim);
+			this.startAnimation(anim);
 		}
 		else{	
 			setState(ACTION_SHOW, TARGET_TOP, OP.OPEN_TOP);	
-			offsetY = topMenuStyle.size;
-			offsetViewY(offsetY);
-			if(topMenuChild > contentChild)
-				changeAlpha(getContentView(), 0f, TARGET_TOP);
-			else
-				changeAlpha(getTopMenuView(), 1f, TARGET_TOP);
+			mOffsetY = mTopMenuStyle.mSize;
+			offsetViewY(mOffsetY);
 		}
 	}
 	
@@ -1367,14 +1315,13 @@ public class SlideLayout extends FrameLayout {
 		if(getTopMenuView() == null || (!isState(ACTION_SHOW, TARGET_TOP) && !isState(ACTION_DRAG, TARGET_TOP)))
 			return;
 		
-		long duration = (long)(topMenuStyle.animDuration * ((float)offsetY / (float)topMenuStyle.size));		
+		long duration = (long)(mTopMenuStyle.mAnimDuration * ((float)mOffsetY / (float)mTopMenuStyle.mSize));		
 		getTopMenuView().clearAnimation();
 		
 		if(animation && duration > 0){	
 			setState(ACTION_CLOSE, TARGET_TOP, OP.CLOSE_TOP);
-			SlideTopAnimation anim = new SlideTopAnimation(false);
+			SlideAnimation anim = new SlideAnimation(false);
 			anim.setDuration(duration);
-			anim.setInterpolator(interpolator);
 			anim.setAnimationListener(new Animation.AnimationListener() {			
 				@Override
 				public void onAnimationStart(Animation animation) {}
@@ -1387,14 +1334,12 @@ public class SlideLayout extends FrameLayout {
 					setState(ACTION_SHOW, TARGET_CONTENT, OP.CLOSE_TOP);
 				}
 			});
-			getTopMenuView().startAnimation(anim);
+			this.startAnimation(anim);
 		}
 		else{	
 			setState(ACTION_SHOW, TARGET_CONTENT, OP.CLOSE_TOP);
-			offsetY = 0;
-			offsetViewY(offsetY);
-			if(topMenuChild > contentChild)
-				changeAlpha(getContentView(), 1f, TARGET_TOP);
+			mOffsetY = 0;
+			offsetViewY(mOffsetY);
 		}
 	}
 	
@@ -1402,14 +1347,13 @@ public class SlideLayout extends FrameLayout {
 		if(getBottomMenuView() == null || (!isState(ACTION_SHOW, TARGET_CONTENT) && !isState(ACTION_DRAG, TARGET_BOTTOM)))
 			return;
 		
-		long duration = (long)Math.abs(bottomMenuStyle.animDuration * ((float)(offsetY + bottomMenuStyle.size) / (float)bottomMenuStyle.size));		
+		long duration = (long)Math.abs(mBottomMenuStyle.mAnimDuration * ((float)(mOffsetY + mBottomMenuStyle.mSize) / (float)mBottomMenuStyle.mSize));		
 		getBottomMenuView().clearAnimation();
 		
 		if(animation && duration > 0){	
 			setState(ACTION_OPEN, TARGET_BOTTOM, OP.OPEN_BOTTOM);	
-			SlideBottomAnimation anim = new SlideBottomAnimation(true);
+			SlideAnimation anim = new SlideAnimation(true);
 			anim.setDuration(duration);
-			anim.setInterpolator(interpolator);
 			anim.setAnimationListener(new Animation.AnimationListener() {			
 				@Override
 				public void onAnimationStart(Animation animation) {}
@@ -1422,16 +1366,12 @@ public class SlideLayout extends FrameLayout {
 					setState(ACTION_SHOW, TARGET_BOTTOM, OP.OPEN_BOTTOM);
 				}
 			});
-			getBottomMenuView().startAnimation(anim);
+			this.startAnimation(anim);
 		}
 		else{	
 			setState(ACTION_SHOW, TARGET_BOTTOM, OP.OPEN_BOTTOM);
-			offsetY = -bottomMenuStyle.size;
-			offsetViewY(offsetY);
-			if(bottomMenuChild > contentChild)
-				changeAlpha(getContentView(), 0f, TARGET_BOTTOM);
-			else
-				changeAlpha(getBottomMenuView(), 1f, TARGET_BOTTOM);			
+			mOffsetY = -mBottomMenuStyle.mSize;
+			offsetViewY(mOffsetY);
 		}
 	}
 			
@@ -1439,14 +1379,13 @@ public class SlideLayout extends FrameLayout {
 		if(getBottomMenuView() == null || (!isState(ACTION_SHOW, TARGET_BOTTOM) && !isState(ACTION_DRAG, TARGET_BOTTOM)))
 			return;
 		
-		long duration = (long)(bottomMenuStyle.animDuration * ((float)-offsetY/ (float)bottomMenuStyle.size));		
+		long duration = (long)(mBottomMenuStyle.mAnimDuration * ((float)-mOffsetY/ (float)mBottomMenuStyle.mSize));		
 		getBottomMenuView().clearAnimation();
 		
 		if(animation && duration > 0){
 			setState(ACTION_CLOSE, TARGET_BOTTOM, OP.CLOSE_BOTTOM);
-			SlideBottomAnimation anim = new SlideBottomAnimation(false);
+			SlideAnimation anim = new SlideAnimation(false);
 			anim.setDuration(duration);
-			anim.setInterpolator(interpolator);
 			anim.setAnimationListener(new Animation.AnimationListener() {			
 				@Override
 				public void onAnimationStart(Animation animation) {}
@@ -1459,14 +1398,12 @@ public class SlideLayout extends FrameLayout {
 					setState(ACTION_SHOW, TARGET_CONTENT, OP.CLOSE_BOTTOM);
 				}
 			});
-			getBottomMenuView().startAnimation(anim);
+			this.startAnimation(anim);
 		}
 		else{	
 			setState(ACTION_SHOW, TARGET_CONTENT, OP.CLOSE_BOTTOM);
-			offsetY = 0;
-			offsetViewY(offsetY);
-			if(bottomMenuChild > contentChild)
-				changeAlpha(getContentView(), 1f, TARGET_BOTTOM);
+			mOffsetY = 0;
+			offsetViewY(mOffsetY);
 		}
 	}
 		
@@ -1486,23 +1423,25 @@ public class SlideLayout extends FrameLayout {
 	}
 	
 	public synchronized int getState(){
-		return getState(action, target);
+		return getState(mAction, mTarget);
 	}
 	
 	public synchronized boolean isState(int action, int target){
-		return this.action == action && this.target == target;
+		return this.mAction == action && this.mTarget == target;
 	}
 	
-	protected synchronized void setState(int action, int target, OP op){
-		int prev_target = this.target;
+	private synchronized void setState(int action, int target, OP op){
+		int prev_action = this.mAction;
+		int prev_target = this.mTarget;
 		
-		if(listener_state != null && listener_state.get() != null)
-			listener_state.get().onStateChanged(this, getState(this.action, this.target), getState(action, target));
+		this.mAction = action;
+		this.mTarget = target;
 		
-		this.action = action;
-		this.target = target;
-		downX = -1;
-		downY = -1;			
+		if(mStateListener != null && mStateListener.get() != null)
+			mStateListener.get().onStateChanged(this, getState(prev_action, prev_target), getState(action, target));		
+		
+		mDownX = -1;
+		mDownY = -1;			
 		
 		if(action == ACTION_DRAG){
 			if(getParent() != null)
@@ -1511,281 +1450,372 @@ public class SlideLayout extends FrameLayout {
 		
 		if(action == ACTION_SHOW){
 			if(target != TARGET_CONTENT)
-				startDrag = false;
+				mStartDrag = false;
 			else{
 				switch (prev_target) {
 					case TARGET_LEFT:
-						changeVisibility(getLeftMenuView(), View.GONE);
-						changeVisibility(getLeftShadowView(), View.GONE);
+						setVisibility(getLeftMenuView(), View.GONE);
+						setVisibility(getLeftShadowView(), View.GONE);
 						break;
 					case TARGET_RIGHT:
-						changeVisibility(getRightMenuView(), View.GONE);
-						changeVisibility(getRightShadowView(), View.GONE);
+						setVisibility(getRightMenuView(), View.GONE);
+						setVisibility(getRightShadowView(), View.GONE);
 						break;
 					case TARGET_TOP:
-						changeVisibility(getTopMenuView(), View.GONE);
-						changeVisibility(getTopShadowView(), View.GONE);
+						setVisibility(getTopMenuView(), View.GONE);
+						setVisibility(getTopShadowView(), View.GONE);
 						break;
 					case TARGET_BOTTOM:
-						changeVisibility(getBottomMenuView(), View.GONE);
-						changeVisibility(getBottomShadowView(), View.GONE);
+						setVisibility(getBottomMenuView(), View.GONE);
+						setVisibility(getBottomShadowView(), View.GONE);
 						break;
 				}
 			}				
 		}			
 	}
 	
-	protected void dispatchOffsetChangedEvent(float offsetX, float offsetY){
-		if(listener_state != null && listener_state.get() != null)
-			listener_state.get().onOffsetChanged(this, offsetX, offsetY, getState(action, target));
+	private void dispatchOffsetChangedEvent(float offsetX, float offsetY){
+		if(mStateListener != null && mStateListener.get() != null)
+			mStateListener.get().onOffsetChanged(this, offsetX, offsetY, getState(mAction, mTarget));
 	}
 			
-	protected void offsetViewX(int offsetX){
-		int left_content = offsetX;
+	private void offsetViewX(int offsetX){
 		View content = getContentView();
 		View menu;
 		View shadow;
+		View overlay = getOverlayView();
 		
-		if(target == TARGET_LEFT){			
+		if(mTarget == TARGET_LEFT){			
 			menu = getLeftMenuView();
 			shadow = getLeftShadowView();
 			
-			if(leftMenuChild > contentChild){
-				int left_menu = Math.min(0, left_content - leftMenuStyle.size);
+			if(mLeftMenuChild > mContentChild){
+				int left_menu = Math.min(0, offsetX - mLeftMenuStyle.mSize) + getPaddingLeft();
+				int left_content = (int)(offsetX * mLeftMenuStyle.mSlideRatio) + getPaddingLeft();
 				
-				offsetLeftAndRight(content, (int)(left_content * leftMenuStyle.slideRatio - content.getLeft()));
-				offsetLeftAndRight(menu, left_menu - menu.getLeft());				
-				changeVisibility(menu, left_content <= 0 ? View.GONE : View.VISIBLE);
+				offsetLeftAndRight(content, left_content - content.getLeft());			
+				offsetLeftAndRight(menu, left_menu - menu.getLeft());	
+				offsetLeftAndRight(overlay, left_menu + mLeftMenuStyle.mSize - overlay.getLeft());
+				offsetLeftAndRight(shadow, left_menu + mLeftMenuStyle.mSize - shadow.getLeft());		
 				
-				if(shadow != null){
-					offsetLeftAndRight(shadow, left_menu + leftMenuStyle.size - shadow.getLeft());
-					changeVisibility(shadow, left_content <= 0 ? View.GONE : View.VISIBLE);
-				}
+				setDim(1f - (float)offsetX / (float)mLeftMenuStyle.mSize, mLeftMenuStyle.mMaxDim);
 			}
 			else{			
-				offsetLeftAndRight(content, left_content - content.getLeft());						
-				offsetLeftAndRight(menu, (int)((left_content - leftMenuStyle.size) * leftMenuStyle.slideRatio - menu.getLeft()));				
-				changeVisibility(menu, left_content <= 0 ? View.GONE : View.VISIBLE);	
+				int left_menu = (int)((offsetX - mLeftMenuStyle.mSize) * mLeftMenuStyle.mSlideRatio) + getPaddingLeft();
+				int left_content = offsetX + getPaddingLeft();
 				
-				if(shadow != null){
-					offsetLeftAndRight(shadow, left_content - leftMenuStyle.menuShadow- shadow.getLeft());
-					changeVisibility(shadow, left_content <= 0 ? View.GONE : View.VISIBLE);
-				}
-			}			
+				offsetLeftAndRight(content, left_content - content.getLeft());						
+				offsetLeftAndRight(menu, left_menu - menu.getLeft());
+				offsetLeftAndRight(overlay, left_content - mViewWidth - overlay.getLeft());
+				offsetLeftAndRight(shadow, left_content - mLeftMenuStyle.mMenuShadow- shadow.getLeft());
+				
+				setDim((float)offsetX / (float)mLeftMenuStyle.mSize, mLeftMenuStyle.mMaxDim);
+			}		
+			
+			if(offsetX > 0){
+				setVisibility(overlay, View.VISIBLE);
+				setVisibility(menu, View.VISIBLE);
+				setVisibility(shadow, View.VISIBLE);
+			}
+			else{
+				setVisibility(overlay, View.GONE);
+				setVisibility(menu, View.GONE);
+				setVisibility(shadow, View.GONE);
+			}
 		}			
-		else if(target == TARGET_RIGHT){
+		else if(mTarget == TARGET_RIGHT){
 			menu = getRightMenuView();
 			shadow = getRightShadowView();
 			
-			if(rightMenuChild > contentChild){
-				int left_menu = Math.max(rightMenuStyle.menuBorder, left_content + viewWidth);
+			if(mRightMenuChild > mContentChild){
+				int left_menu = Math.max(mRightMenuStyle.mMenuBorder, offsetX + mViewWidth) + getPaddingLeft();
+				int left_content = (int)(offsetX * mRightMenuStyle.mSlideRatio) + getPaddingLeft();
 				
-				offsetLeftAndRight(content, (int)(left_content * rightMenuStyle.slideRatio - content.getLeft()));
+				offsetLeftAndRight(content, left_content - content.getLeft());
 				offsetLeftAndRight(menu, left_menu - menu.getLeft());
-				changeVisibility(menu, left_content >= 0 ? View.GONE : View.VISIBLE);
+				offsetLeftAndRight(overlay, left_menu - mViewWidth - overlay.getLeft());
+				offsetLeftAndRight(shadow, left_menu - mRightMenuStyle.mMenuShadow - shadow.getLeft());
 				
-				if(shadow != null){
-					offsetLeftAndRight(shadow, left_menu - rightMenuStyle.menuShadow - shadow.getLeft());
-					changeVisibility(shadow, left_content >= 0 ? View.GONE : View.VISIBLE);
-				}
+				setDim(1f - (float)-offsetX / (float)mRightMenuStyle.mSize, mRightMenuStyle.mMaxDim);
 			}
-			else{				
-				offsetLeftAndRight(content, left_content - content.getLeft());				
-				offsetLeftAndRight(menu, (int)((left_content + rightMenuStyle.size) * rightMenuStyle.slideRatio + rightMenuStyle.menuBorder - menu.getLeft()));								
-				changeVisibility(menu, left_content >= 0 ? View.GONE : View.VISIBLE);
+			else{	
+				int left_menu = (int)((offsetX + mRightMenuStyle.mSize) * mRightMenuStyle.mSlideRatio) + mRightMenuStyle.mMenuBorder + getPaddingLeft();
+				int left_content = offsetX + getPaddingLeft();
 				
-				if(shadow != null){
-					offsetLeftAndRight(shadow, left_content + viewWidth - shadow.getLeft());
-					changeVisibility(shadow, left_content >= 0 ? View.GONE : View.VISIBLE);
-				}
-			}			
+				offsetLeftAndRight(content, left_content - content.getLeft());				
+				offsetLeftAndRight(menu, left_menu - menu.getLeft());
+				offsetLeftAndRight(overlay, left_content + mViewWidth - overlay.getLeft());
+				offsetLeftAndRight(shadow, left_content + mViewWidth - shadow.getLeft());
+				
+				setDim((float)-offsetX / (float)mRightMenuStyle.mSize, mRightMenuStyle.mMaxDim);
+			}	
+			
+			if(offsetX < 0){
+				setVisibility(overlay, View.VISIBLE);
+				setVisibility(menu, View.VISIBLE);
+				setVisibility(shadow, View.VISIBLE);
+			}
+			else{
+				setVisibility(overlay, View.GONE);
+				setVisibility(menu, View.GONE);
+				setVisibility(shadow, View.GONE);
+			}
 		}
 		
 		invalidate();
 	}
 	
-	protected void offsetViewY(int offsetY){
-		int top_content = offsetY;
+	private void offsetViewY(int offsetY){
 		View content = getContentView();
 		View menu;		
-		View shadow;		
+		View shadow;	
+		View overlay = getOverlayView();
 							
-		if(target == TARGET_TOP){
+		if(mTarget == TARGET_TOP){
 			menu = getTopMenuView();
 			shadow = getTopShadowView();
 			
-			if(topMenuChild > contentChild){
-				int top_menu = Math.min(0, top_content - topMenuStyle.size);
+			if(mTopMenuChild > mContentChild){
+				int top_menu = Math.min(0, offsetY - mTopMenuStyle.mSize) + getPaddingTop();
+				int top_content = (int)(offsetY * mTopMenuStyle.mSlideRatio) + getPaddingTop();
 				
-				offsetTopAndBottom(content, (int)(top_content * topMenuStyle.slideRatio - content.getTop()));
-				offsetTopAndBottom(menu, top_menu - menu.getTop());				
-				changeVisibility(menu, top_content <= 0 ? View.GONE : View.VISIBLE);
-				
-				if(shadow != null){
-					offsetTopAndBottom(shadow, top_menu + topMenuStyle.size - shadow.getTop());
-					changeVisibility(shadow, top_content <= 0 ? View.GONE : View.VISIBLE);
-				}
-			}
-			else{						
 				offsetTopAndBottom(content, top_content - content.getTop());
-				offsetTopAndBottom(menu, (int)((top_content - topMenuStyle.size) * topMenuStyle.slideRatio - menu.getTop()));				
-				changeVisibility(menu, top_content <= 0 ? View.GONE : View.VISIBLE);		
-							
-				if(shadow != null){
-					offsetTopAndBottom(shadow, top_content - topMenuStyle.menuShadow - shadow.getTop());
-					changeVisibility(shadow, top_content <= 0 ? View.GONE : View.VISIBLE);
-				}
-			}			
+				offsetTopAndBottom(menu, top_menu - menu.getTop());		
+				offsetTopAndBottom(overlay, top_menu + mTopMenuStyle.mSize - overlay.getTop());
+				offsetTopAndBottom(shadow, top_menu + mTopMenuStyle.mSize - shadow.getTop());
+				
+				setDim(1f - (float)offsetY / (float)mTopMenuStyle.mSize, mTopMenuStyle.mMaxDim);
+			}
+			else{		
+				int top_menu = (int)((offsetY - mTopMenuStyle.mSize) * mTopMenuStyle.mSlideRatio) + getPaddingTop();
+				int top_content = offsetY + getPaddingTop();
+				
+				offsetTopAndBottom(content, top_content - content.getTop());
+				offsetTopAndBottom(menu, top_menu - menu.getTop());		
+				offsetTopAndBottom(overlay, top_content - mViewHeight - overlay.getTop());
+				offsetTopAndBottom(shadow, top_content - mTopMenuStyle.mMenuShadow - shadow.getTop());
+				
+				setDim((float)offsetY / (float)mTopMenuStyle.mSize, mTopMenuStyle.mMaxDim);
+			}
+			
+			if(offsetY > 0){
+				setVisibility(overlay, View.VISIBLE);
+				setVisibility(menu, View.VISIBLE);
+				setVisibility(shadow, View.VISIBLE);
+			}
+			else{
+				setVisibility(overlay, View.GONE);
+				setVisibility(menu, View.GONE);
+				setVisibility(shadow, View.GONE);
+			}
 		}
-		else if(target == TARGET_BOTTOM){
+		else if(mTarget == TARGET_BOTTOM){
 			menu = getBottomMenuView();		
 			shadow = getBottomShadowView();
 			
-			if(bottomMenuChild > contentChild){
-				int top_menu = Math.max(bottomMenuStyle.menuBorder, top_content + viewHeight);
+			if(mBottomMenuChild > mContentChild){
+				int top_menu = Math.max(mBottomMenuStyle.mMenuBorder, offsetY + mViewHeight) + getPaddingTop();
+				int top_content = (int)(offsetY * mBottomMenuStyle.mSlideRatio) + getPaddingTop();
 				
-				offsetTopAndBottom(content, (int)(top_content * bottomMenuStyle.slideRatio - content.getTop()));
+				offsetTopAndBottom(content, top_content - content.getTop());
 				offsetTopAndBottom(menu, top_menu - menu.getTop());
-				changeVisibility(menu, top_content >= 0 ? View.GONE : View.VISIBLE);
+				offsetTopAndBottom(overlay, top_menu - mViewHeight - overlay.getTop());	
+				offsetTopAndBottom(shadow, top_menu - mBottomMenuStyle.mMenuShadow - shadow.getTop());		
 				
-				if(shadow != null){
-					offsetTopAndBottom(shadow, top_menu - bottomMenuStyle.menuShadow - shadow.getTop());
-					changeVisibility(shadow, top_content >= 0 ? View.GONE : View.VISIBLE);
-				}				
+				setDim(1f - (float)-offsetY / (float)mBottomMenuStyle.mSize, mBottomMenuStyle.mMaxDim);
 			}
 			else{
-				offsetTopAndBottom(content, top_content - content.getTop());				
-				offsetTopAndBottom(menu, (int)((top_content + bottomMenuStyle.size) * bottomMenuStyle.slideRatio + bottomMenuStyle.menuBorder - menu.getTop()));								
-				changeVisibility(menu, top_content >= 0 ? View.GONE : View.VISIBLE);
+				int top_menu = (int)((offsetY + mBottomMenuStyle.mSize) * mBottomMenuStyle.mSlideRatio + mBottomMenuStyle.mMenuBorder) + getPaddingTop();
+				int top_content = offsetY + getPaddingTop();
 				
-				if(shadow != null){
-					offsetTopAndBottom(shadow, top_content + viewHeight - shadow.getTop());
-					changeVisibility(shadow, top_content >= 0 ? View.GONE : View.VISIBLE);
-				}
-			}			
+				offsetTopAndBottom(content, top_content - content.getTop());				
+				offsetTopAndBottom(menu, top_menu - menu.getTop());
+				offsetTopAndBottom(overlay, top_content + mViewHeight - overlay.getTop());	
+				offsetTopAndBottom(shadow, top_content + mViewHeight - shadow.getTop());
+				
+				setDim((float)-offsetY / (float)mBottomMenuStyle.mSize, mBottomMenuStyle.mMaxDim);
+			}
+			
+			if(offsetY < 0){
+				setVisibility(overlay, View.VISIBLE);
+				setVisibility(menu, View.VISIBLE);
+				setVisibility(shadow, View.VISIBLE);
+			}
+			else{
+				setVisibility(overlay, View.GONE);
+				setVisibility(menu, View.GONE);
+				setVisibility(shadow, View.GONE);
+			}
 		}
 				
 		invalidate();
 	}
 		
     @Override
-    protected void onLayout(boolean changed, int left, int top, int right, int bottom) {
-    	bottom -= top + getPaddingBottom();
+    protected void onLayout(boolean changed, int left, int top, int right, int bottom) {    	
     	right -= left + getPaddingRight();
+    	bottom -= top + getPaddingBottom();
+    	left = getPaddingLeft();
+    	top = getPaddingTop();   	
     	
-    	if(viewWidth != right || viewHeight != bottom){
-    		viewWidth = right;
-    		viewHeight = bottom;
-    		setLeftMenuView(viewWidth, viewHeight);
-    		setRightMenuView(viewWidth, viewHeight);
-    		setTopMenuView(viewWidth, viewHeight);
-    		setBottomMenuView(viewWidth, viewHeight);
-    		setContentView(viewWidth, viewHeight);
-    		setShadow(viewWidth, viewHeight);   
+    	if(mViewWidth != right - left || mViewHeight != bottom - top){
+    		mViewWidth = right - left;
+    		mViewHeight = bottom - top;
+    		setLeftMenuView(mViewWidth, mViewHeight);
+    		setRightMenuView(mViewWidth, mViewHeight);
+    		setTopMenuView(mViewWidth, mViewHeight);
+    		setBottomMenuView(mViewWidth, mViewHeight);
+    		setContentView(mViewWidth, mViewHeight);
+    		setShadow(mViewWidth, mViewHeight);   
     		
     		// if menu already opened, then offset view correctly
-    		if(action == ACTION_SHOW){
-    			switch (target) {
+    		if(mAction == ACTION_SHOW){
+    			switch (mTarget) {
 					case TARGET_LEFT:
-						offsetX = leftMenuStyle.size;
-						offsetViewX(offsetX);
+						mOffsetX = mLeftMenuStyle.mSize;
+						offsetViewX(mOffsetX);
 						break;
 					case TARGET_RIGHT:
-						offsetX = rightMenuStyle.size;
-						offsetViewX(offsetX);
+						mOffsetX = mRightMenuStyle.mSize;
+						offsetViewX(mOffsetX);
 						break;
 					case TARGET_TOP:
-						offsetY = topMenuStyle.size;
-						offsetViewY(offsetY);
+						mOffsetY = mTopMenuStyle.mSize;
+						offsetViewY(mOffsetY);
 						break;
 					case TARGET_BOTTOM:
-						offsetY = bottomMenuStyle.size;
-						offsetViewY(offsetY);
+						mOffsetY = mBottomMenuStyle.mSize;
+						offsetViewY(mOffsetY);
 						break;
     			}
     		}
     	}
-    	    	
-    	final int count = getChildCount();
-    	
-    	for (int i = 0; i < count; i++) {
-    		View child = getChildAt(i);
-    		if(child.getVisibility() == View.GONE)
-    			continue;    		
-    		
-    		if(i == leftMenuChild){
-    			int leftChild = (leftMenuChild > contentChild) ? Math.min(0, offsetX - leftMenuStyle.size) : (int)((offsetX - leftMenuStyle.size) * leftMenuStyle.slideRatio);    			    			    			
-    			child.layout(leftChild, offsetY, leftChild + leftMenuStyle.size, offsetY + viewHeight);
-    		}
-    		else if(i == rightMenuChild){
-    			int leftChild = (rightMenuChild > contentChild) ? Math.max(rightMenuStyle.menuBorder, offsetX + viewWidth) : (int)((offsetX + rightMenuStyle.size) * rightMenuStyle.slideRatio + rightMenuStyle.menuBorder);    			
-    			child.layout(leftChild, offsetY, leftChild + rightMenuStyle.size, offsetY + viewHeight);
-    		}
-    		else if(i == topMenuChild){
-    			int topChild = (topMenuChild > contentChild) ? Math.min(0, offsetY - topMenuStyle.size) : (int)((offsetY - topMenuStyle.size) * topMenuStyle.slideRatio);    			    			
-    			child.layout(offsetX, topChild, offsetX + viewWidth, topChild + topMenuStyle.size);
-    		}
-    		else if(i == bottomMenuChild){
-    			int topChild = (bottomMenuChild > contentChild) ? Math.max(bottomMenuStyle.menuBorder, offsetY + viewHeight) : (int)((offsetY + bottomMenuStyle.size) * bottomMenuStyle.slideRatio + bottomMenuStyle.menuBorder);
-    			child.layout(offsetX, topChild, offsetX + viewWidth, topChild + bottomMenuStyle.size);
-    		}
-    		else if(i == contentChild){
-    			int x = offsetX;
-    			int y = offsetY;
-    			
-    			if(target == TARGET_LEFT){
-    				if(leftMenuChild > contentChild)
-    					x = (int)(offsetX * leftMenuStyle.slideRatio);    				
-    			}
-    			else if(target == TARGET_RIGHT){
-    				if(rightMenuChild > contentChild)
-    					x = (int)(offsetX * rightMenuStyle.slideRatio);       				
-    			}
-    			else if(target == TARGET_TOP){
-    				if(topMenuChild > contentChild)
-    					y = (int)(offsetY * topMenuStyle.slideRatio);     
-    			}
-    			else if(target == TARGET_BOTTOM){
-    				if(bottomMenuChild > contentChild)
-    					y = (int)(offsetY * bottomMenuStyle.slideRatio);   
-    			}
-    			
-    			child.layout(x, y, x + viewWidth, y + viewHeight);
-    		}
-    		else if(i == leftShadowChild){
-    			int leftChild = leftMenuChild > contentChild ? Math.min(leftMenuStyle.size, offsetX) : (offsetX - leftMenuStyle.menuShadow);
-    			child.layout(leftChild, offsetY, leftChild + leftMenuStyle.menuShadow, offsetY + viewHeight); 
-    		}
-    		else if(i == rightShadowChild){
-    			int leftChild = rightMenuChild > contentChild ? (Math.max(rightMenuStyle.menuBorder, offsetX + viewWidth) - rightMenuStyle.menuShadow) : (offsetX + viewWidth);
-    			child.layout(leftChild, offsetY, leftChild + rightMenuStyle.menuShadow, offsetY + viewHeight); 
-    		}  
-    		else if(i == topShadowChild){
-    			int topChild = topMenuChild > contentChild ? Math.min(topMenuStyle.size, offsetY) : (offsetY - topMenuStyle.menuShadow);
-    			child.layout(offsetX, topChild, offsetX + viewWidth, topChild + topMenuStyle.menuShadow);
-    		}
-    		else if(i == bottomShadowChild){
-    			int topChild = bottomMenuChild > contentChild ? (Math.max(bottomMenuStyle.menuBorder, offsetY + viewHeight) - bottomMenuStyle.menuShadow) : (offsetY + viewHeight);
-    			child.layout(offsetX, topChild, offsetX + viewWidth, topChild + bottomMenuStyle.menuShadow); 
-    		}
-    	}    
+    	    
+    	View menu;
+    	View shadow;
+		View content = getContentView();		
+		View overlay = getOverlayView();
+		
+    	switch (mTarget) {
+			case TARGET_LEFT:
+				menu = getLeftMenuView();				
+				shadow = getLeftShadowView();
+								
+				if(mLeftMenuChild > mContentChild){
+					int right_menu = left + Math.min(mLeftMenuStyle.mSize, mOffsetX);
+					int left_content = left + (int)(mOffsetX * mLeftMenuStyle.mSlideRatio); 
+					
+					layout(menu, right_menu - mLeftMenuStyle.mSize, top, right_menu, bottom);					
+					layout(content, left_content, top, left_content + mViewWidth, bottom);					
+					layout(shadow, right_menu, top, right_menu + mLeftMenuStyle.mMenuShadow, bottom); 
+	    			layout(overlay, right_menu, top, right_menu + mViewWidth, bottom);	
+				}
+				else{
+					int left_menu = left + (int)((mOffsetX - mLeftMenuStyle.mSize) * mLeftMenuStyle.mSlideRatio);
+					int left_content = left + mOffsetX;
+					
+					layout(menu, left_menu, top, left_menu + mLeftMenuStyle.mSize, bottom);
+					layout(content, left_content, top, left_content + mViewWidth, bottom);	    			
+					layout(shadow, left_content - mLeftMenuStyle.mMenuShadow, top, left_content, bottom); 
+	    			layout(overlay, left_content - mViewWidth, top, left_content, bottom);
+				}
+				break;			
+			case TARGET_RIGHT:
+				menu = getRightMenuView();				
+				shadow = getRightShadowView();
+				if(mRightMenuChild > mContentChild){
+					int left_menu = left + Math.max(mRightMenuStyle.mMenuBorder, mOffsetX + mViewWidth); 
+					int left_content = left + (int)(mOffsetX * mRightMenuStyle.mSlideRatio); 
+					
+	    			layout(menu, left_menu, top, left_menu + mRightMenuStyle.mSize, bottom);
+	    			layout(content, left_content, top, left_content + mViewWidth, bottom);	    			
+	    			layout(shadow, left_menu - mRightMenuStyle.mMenuShadow, top, left_menu, bottom); 
+	    			layout(overlay, left_menu - mViewWidth, top, left_menu, bottom);
+				}
+				else{
+					int left_menu = left + (int)((mOffsetX + mRightMenuStyle.mSize) * mRightMenuStyle.mSlideRatio + mRightMenuStyle.mMenuBorder);
+					int right_content = left + mOffsetX + mViewWidth;
+					
+					layout(menu, left_menu, top, left_menu + mRightMenuStyle.mSize, bottom);
+					layout(content, right_content - mViewWidth, top, right_content, bottom);
+					layout(shadow, right_content, top, right_content + mRightMenuStyle.mMenuShadow, bottom); 
+					layout(overlay, right_content, top, right_content + mViewWidth, bottom);
+				}
+				break;
+			case TARGET_TOP:
+				menu = getTopMenuView();				
+				shadow = getTopShadowView();
+				if(mTopMenuChild > mContentChild){
+					int bottom_menu = top + Math.min(mTopMenuStyle.mSize, mOffsetY);    
+					int top_content = top + (int)(mOffsetY * mTopMenuStyle.mSlideRatio);   
+					
+	    			layout(menu, left, bottom_menu - mTopMenuStyle.mSize, right, bottom_menu);
+	    			layout(content, left, top_content, right, top_content + mViewHeight);	    			
+	    			layout(shadow, left, bottom_menu, right, bottom_menu + mTopMenuStyle.mMenuShadow);
+	    			layout(overlay, left, bottom_menu, right, bottom_menu + mViewHeight);
+				}
+				else{
+					int top_menu = top + (int)((mOffsetY - mTopMenuStyle.mSize) * mTopMenuStyle.mSlideRatio);
+					int top_content = top + mOffsetY;
+					
+					layout(menu, left, top_menu, right, top_menu + mTopMenuStyle.mSize);					
+					layout(content, left, top_content, right, top_content + mViewHeight);					
+					layout(shadow, left, top_content - mTopMenuStyle.mMenuShadow, right, top_content);
+					layout(overlay, left, top_content - mViewHeight, right, top_content);
+				}
+				break;
+			case TARGET_BOTTOM:
+				menu = getBottomMenuView();				
+				shadow = getBottomShadowView();
+				if(mBottomMenuChild > mContentChild){
+					int top_menu = top + Math.max(mBottomMenuStyle.mMenuBorder, mOffsetY + mViewHeight);
+					int top_content = top + (int)(mOffsetY * mBottomMenuStyle.mSlideRatio);
+					
+	    			layout(menu, left, top_menu, right, top_menu + mBottomMenuStyle.mSize);
+	    			layout(content, left, top_content, right, top_content + mViewHeight);	    			
+	    			layout(shadow, left, top_menu - mBottomMenuStyle.mMenuShadow, right, top_menu); 
+	    			layout(overlay, left, top_menu - mViewHeight, right, top_menu); 
+				}
+				else{
+					int top_menu = top + (int)((mOffsetY + mBottomMenuStyle.mSize) * mBottomMenuStyle.mSlideRatio + mBottomMenuStyle.mMenuBorder);
+					int bottom_content = top + mOffsetY + mViewHeight;
+					
+					layout(menu, left, top_menu, right, top_menu + mBottomMenuStyle.mSize);
+					layout(content, left, bottom_content - mViewHeight, right, bottom_content);
+					layout(shadow, left, bottom_content, right, bottom_content + mBottomMenuStyle.mMenuShadow); 
+					layout(overlay, left, bottom_content, right, bottom_content + mViewHeight); 
+				}
+				break;
+			case TARGET_CONTENT:				
+				layout(content, left, top, right, bottom);
+				layout(overlay, 0, 0, 0, 0);
+				break;
+				
+		}    	
     }
     
-    protected void offsetLeftAndRight(View v, int offset){
+    private void offsetLeftAndRight(View v, int offset){
     	if(v == null)
     		return;
     	
 		v.offsetLeftAndRight(offset);
 	}
     
-    protected void offsetTopAndBottom(View v, int offset){
+    private void offsetTopAndBottom(View v, int offset){
     	if(v == null)
     		return;
     	
 		v.offsetTopAndBottom(offset);
 	}
     
-    protected void changeVisibility(View v, int visibility){
+    private void layout(View v, int l, int t, int r, int b){
+    	if(v == null || v.getVisibility() == View.GONE)
+    		return;
+    	
+    	v.layout(l, t, r, b);
+    }
+    
+    private void setVisibility(View v, int visibility){
     	if(v == null)
     		return;
     	
@@ -1794,229 +1824,143 @@ public class SlideLayout extends FrameLayout {
     	
 		v.setVisibility(visibility);
 	}
+        
+    private boolean cancelMotionEvent(MotionEvent event, View mDispatchView){
+    	MotionEvent cancelEvent = MotionEvent.obtain(event);
+        cancelEvent.setAction(MotionEvent.ACTION_CANCEL | (event.getActionIndex() << MotionEvent.ACTION_POINTER_INDEX_SHIFT));
+        
+        boolean result;
+        if(mDispatchView != null)
+        	result = mDispatchView.dispatchTouchEvent(cancelEvent) || super.dispatchTouchEvent(cancelEvent);
+        else
+        	result = super.dispatchTouchEvent(cancelEvent);
+        
+		cancelEvent.recycle();
+		
+		return result;
+    }
     
-    protected void changeAlpha(View v, float value, int target){
+    /**
+     * 
+     * @param progress 1f: no Dim, 0f: maximum Dim
+     * @param maxDim maximum Dim value
+     */
+    private void setDim(float progress, float maxDim){
+    	View v = getOverlayView();
     	if(v == null)
     		return;
     	
-    	float minAlpha = 1f;
-    	switch (target) {
-			case TARGET_LEFT:
-				minAlpha = leftMenuStyle.minAlpha;
-				break;
-			case TARGET_RIGHT:
-				minAlpha = rightMenuStyle.minAlpha;
-				break;
-			case TARGET_TOP:
-				minAlpha = topMenuStyle.minAlpha;
-				break;
-			case TARGET_BOTTOM:
-				minAlpha = bottomMenuStyle.minAlpha;
-				break;
-		}
-    	ChangeAlphaAnimation anim = new ChangeAlphaAnimation(Math.max(0f, Math.min(1f, value)) * (1f - minAlpha) + minAlpha);
+    	v.clearAnimation();
+    	
+    	ChangeAlphaAnimation anim = new ChangeAlphaAnimation((1f - Math.max(0f, Math.min(1f,  progress))) * maxDim);
 		v.startAnimation(anim);
+		
+		v.setVisibility(progress == 1f ? View.GONE : View.VISIBLE);
 	}
     
-    private class SlideLeftAnimation extends Animation {
+    private class SlideAnimation extends Animation {
 		
 		private int distance;
-		private int xstart;
+		private int start;
 		private boolean isOpen;
 				
-		public SlideLeftAnimation(boolean isOpen){
+		public SlideAnimation(boolean isOpen){
 			this.isOpen = isOpen;
+			switch (mTarget) {
+				case TARGET_LEFT:
+					distance = isOpen ? mLeftMenuStyle.mSize - mOffsetX : mOffsetX;
+					start = mOffsetX;
+					setInterpolator(mLeftMenuStyle.getInterpolator());
+					break;
+				case TARGET_RIGHT:
+					distance = isOpen ? mRightMenuStyle.mSize + mOffsetX :  -mOffsetX;
+					start = mOffsetX;
+					setInterpolator(mRightMenuStyle.getInterpolator());
+					break;
+				case TARGET_TOP:
+					distance = isOpen ? mTopMenuStyle.mSize - mOffsetY : mOffsetY;
+					start = mOffsetY;
+					setInterpolator(mTopMenuStyle.getInterpolator());
+					break;
+				case TARGET_BOTTOM:
+					distance = isOpen ? mBottomMenuStyle.mSize + mOffsetY : -mOffsetY;
+					start = mOffsetY;
+					setInterpolator(mBottomMenuStyle.getInterpolator());
+					break;
+			}
 		}
 		
 		@Override
-		protected void applyTransformation(float interpolatedTime, Transformation t) {				
-			if(interpolatedTime == 0f){
-				if(isOpen){		
-					distance = leftMenuStyle.size - offsetX;	
-					xstart = offsetX;
-				}
-				else{					
-					distance = offsetX;
-					xstart = offsetX;
-				}
-			}
-			else {
-				if(isOpen){
-					float value = getInterpolator().getInterpolation(interpolatedTime);
-					offsetX = distance > 0 ? Math.min(leftMenuStyle.size, (int)(xstart + distance * value)) : Math.max(leftMenuStyle.size, (int)(xstart + distance * value));
-				}
-				else{
-					float value = getInterpolator().getInterpolation(interpolatedTime);
-					offsetX = Math.max(0, (int)(xstart - distance * value));
-				}
-				offsetViewX(offsetX);
-			}
-			
-			if(leftMenuChild > contentChild)
-				changeAlpha(getContentView(), 1f - (float)offsetX / (float)leftMenuStyle.size, TARGET_LEFT);
-			else
-				t.setAlpha(Math.min(1f, (float)offsetX / (float)leftMenuStyle.size) * (1f - leftMenuStyle.minAlpha) + leftMenuStyle.minAlpha);				
-			
-			if(isOpen){
-				if(offsetX == leftMenuStyle.size)
-					this.cancel();
-			}
-			else{
-				if(offsetX == 0)
-					this.cancel();
-			}
-		}
-	}    
-
-    private class SlideRightAnimation extends Animation {
-		
-		private int distance;
-		private int xstart;
-		private boolean isOpen;
-				
-		public SlideRightAnimation(boolean isOpen){
-			this.isOpen = isOpen;
-		}
-		
-		@Override
-		protected void applyTransformation(float interpolatedTime, Transformation t) {				
-			if(interpolatedTime == 0f){
-				if(isOpen){		
-					distance = offsetX + rightMenuStyle.size;	
-					xstart = offsetX;
-				}
-				else{					
-					distance = -offsetX;
-					xstart = offsetX;
-				}
-			}
-			else {
-				if(isOpen){
-					float value = getInterpolator().getInterpolation(interpolatedTime);
-					offsetX = distance > 0 ? Math.max(-rightMenuStyle.size, (int)(xstart - distance * value)) : Math.min(-rightMenuStyle.size, (int)(xstart - distance * value));
-				}
-				else{
-					float value = getInterpolator().getInterpolation(interpolatedTime);
-					offsetX = Math.min(0, (int)(xstart + distance * value));
-				}
-				offsetViewX(offsetX);
-			}
-			
-			if(rightMenuChild > contentChild)
-				changeAlpha(getContentView(), 1f - (float)-offsetX / (float)rightMenuStyle.size, TARGET_RIGHT);
-			else
-				t.setAlpha(Math.min(1f, (float)-offsetX / (float)rightMenuStyle.size) * (1f - rightMenuStyle.minAlpha) + rightMenuStyle.minAlpha);
-			
-			if(isOpen){
-				if(offsetX == -rightMenuStyle.size)
-					this.cancel();
-			}
-			else{
-				if(offsetX == 0)
-					this.cancel();
+		protected void applyTransformation(float interpolatedTime, Transformation t) {	
+			float value = getInterpolator().getInterpolation(interpolatedTime);
+			switch (mTarget) {
+				case TARGET_LEFT:
+					if(isOpen)
+						mOffsetX = distance > 0 ? Math.min(mLeftMenuStyle.mSize, (int)(start + distance * value)) : Math.max(mLeftMenuStyle.mSize, (int)(start + distance * value));						
+					else
+						mOffsetX = Math.max(0, (int)(start - distance * value));						
+					offsetViewX(mOffsetX);
+					
+					if(isOpen){
+						if(mOffsetX == mLeftMenuStyle.mSize)
+							this.cancel();
+					}
+					else{
+						if(mOffsetX == 0)
+							this.cancel();
+					}
+					break;
+				case TARGET_RIGHT:
+					if(isOpen)
+						mOffsetX = distance > 0 ? Math.max(-mRightMenuStyle.mSize, (int)(start - distance * value)) : Math.min(-mRightMenuStyle.mSize, (int)(start - distance * value));						
+					else
+						mOffsetX = Math.min(0, (int)(start + distance * value));
+					offsetViewX(mOffsetX);
+					
+					if(isOpen){
+						if(mOffsetX == -mRightMenuStyle.mSize)
+							this.cancel();
+					}
+					else{
+						if(mOffsetX == 0)
+							this.cancel();
+					}
+					break;
+				case TARGET_TOP:
+					if(isOpen)
+						mOffsetY = distance > 0 ? Math.min(mTopMenuStyle.mSize, (int)(start + distance * value)) : Math.max(mTopMenuStyle.mSize, (int)(start + distance * value));						
+					else
+						mOffsetY = Math.max(0, (int)(start - distance * value));
+					offsetViewY(mOffsetY);
+					
+					if(isOpen){
+						if(mOffsetY == mTopMenuStyle.mSize)
+							this.cancel();
+					}
+					else{
+						if(mOffsetY == 0)
+							this.cancel();
+					}
+					break;
+				case TARGET_BOTTOM:
+					if(isOpen)
+						mOffsetY = distance > 0 ? Math.max(-mBottomMenuStyle.mSize, (int)(start - distance * value)) : Math.min(-mBottomMenuStyle.mSize, (int)(start - distance * value));						
+					else
+						mOffsetY = Math.min(0, (int)(start + distance * value));
+					offsetViewY(mOffsetY);
+					
+					if(isOpen){
+						if(mOffsetY == -mBottomMenuStyle.mSize)
+							this.cancel();
+					}
+					else{
+						if(mOffsetY == 0)
+							this.cancel();
+					}
+					break;
 			}
 		}
-	}
-    
-    private class SlideTopAnimation extends Animation {
-		
-		private int distance;
-		private int ystart;
-		private boolean isOpen;
-				
-		public SlideTopAnimation(boolean isOpen){
-			this.isOpen = isOpen;
-		}
-		
-		@Override
-		protected void applyTransformation(float interpolatedTime, Transformation t) {				
-			if(interpolatedTime == 0f){
-				if(isOpen){		
-					distance = topMenuStyle.size - offsetY;	
-					ystart = offsetY;
-				}
-				else{					
-					distance = offsetY;
-					ystart = offsetY;
-				}
-			}
-			else {
-				if(isOpen){
-					float value = getInterpolator().getInterpolation(interpolatedTime);
-					offsetY = distance > 0 ? Math.min(topMenuStyle.size, (int)(ystart + distance * value)) : Math.max(topMenuStyle.size, (int)(ystart + distance * value));
-				}
-				else{
-					float value = getInterpolator().getInterpolation(interpolatedTime);
-					offsetY = Math.max(0, (int)(ystart - distance * value));
-				}
-				offsetViewY(offsetY);
-			}
-			
-			if(topMenuChild > contentChild)
-				changeAlpha(getContentView(), 1f - (float)offsetY / (float)topMenuStyle.size, TARGET_TOP);
-			else
-				t.setAlpha(Math.min(1f, (float)offsetY / (float)topMenuStyle.size) * (1f - topMenuStyle.minAlpha) + topMenuStyle.minAlpha);
-			
-			if(isOpen){
-				if(offsetY == topMenuStyle.size)
-					this.cancel();
-			}
-			else{
-				if(offsetY == 0)
-					this.cancel();
-			}
-		}
-	} 
-    
-    private class SlideBottomAnimation extends Animation {
-		
-		private int distance;
-		private int ystart;
-		private boolean isOpen;
-				
-		public SlideBottomAnimation(boolean isOpen){
-			this.isOpen = isOpen;
-		}
-		
-		@Override
-		protected void applyTransformation(float interpolatedTime, Transformation t) {				
-			if(interpolatedTime == 0f){
-				if(isOpen){		
-					distance = offsetY + bottomMenuStyle.size;	
-					ystart = offsetY;
-				}
-				else{					
-					distance = -offsetY;
-					ystart = offsetY;
-				}
-			}
-			else {
-				if(isOpen){
-					float value = getInterpolator().getInterpolation(interpolatedTime);
-					offsetY = distance > 0 ? Math.max(-bottomMenuStyle.size, (int)(ystart - distance * value)) : Math.min(-bottomMenuStyle.size, (int)(ystart - distance * value));
-				}
-				else{
-					float value = getInterpolator().getInterpolation(interpolatedTime);
-					offsetY = Math.min(0, (int)(ystart + distance * value));
-				}
-				offsetViewY(offsetY);
-			}
-			
-			if(bottomMenuChild > contentChild)
-				changeAlpha(getContentView(), 1f - (float)-offsetY / (float)bottomMenuStyle.size, TARGET_BOTTOM);
-			else
-				t.setAlpha(Math.min(1f, (float)-offsetY / (float)bottomMenuStyle.size) * (1f - bottomMenuStyle.minAlpha) + bottomMenuStyle.minAlpha);
-			
-			if(isOpen){
-				if(offsetY == -bottomMenuStyle.size)
-					this.cancel();
-			}
-			else{
-				if(offsetY == 0)
-					this.cancel();
-			}
-		}
-	}
+    }
     
 	private class ChangeAlphaAnimation extends Animation{
 		
@@ -2048,32 +1992,29 @@ public class SlideLayout extends FrameLayout {
 	}
 	
 	private class MenuStyle{
-		boolean overDrag = false;
+		boolean mOverDrag = false;
 		
-		int menuBorder;
-		float menuBorderPercent = -1f;
+		int mMenuBorder;
+		float mMenuBorderPercent = -1f;
 		
-		int menuOverDragBorder;
-		float menuOverDragBorderPercent = -1f;
+		int mMenuOverDragBorder;
+		float mMenuOverDragBorderPercent = -1f;
 						
-		int menuShadow = 10;
+		int mMenuShadow = 10;	
+		int mDragEdge = 30;			
+		int mTouchSlop = 16;		
+		float mMaxDim = 0.5f;		
+		float mVelocitySlop = 500f;
 		
-		int dragEdge = 30;		
+		int mCloseEdge;
+		float mCloseEdgePercent = -1f;
 		
-		int touchSlop = 16;
+		int mAnimDuration = 1000;
+		int mInterpolatorId = 0;
 		
-		float minAlpha = 0.3f;
+		int mSize;
 		
-		float velocitySlop = 500f;
-		
-		int closeEdge;
-		float closeEdgePercent = -1f;
-		
-		int animDuration = 1000;
-		
-		int size;
-		
-		float slideRatio = 0.5f;
+		float mSlideRatio = 0.5f;
 		
 		public MenuStyle(Context context, int resID){
 			TypedArray a = context.obtainStyledAttributes(resID, R.styleable.SlideMenuStyle);
@@ -2081,61 +2022,75 @@ public class SlideLayout extends FrameLayout {
 			for (int i = 0, count = a.getIndexCount(); i < count; i++){
 			    int attr = a.getIndex(i);
 			    switch (attr){
-			    	case R.styleable.SlideMenuStyle_overDrag:
-			    		overDrag = a.getBoolean(attr, false);
+			    	case R.styleable.SlideMenuStyle_sm_overDrag:
+			    		mOverDrag = a.getBoolean(attr, false);
 			    		break;
-			        case R.styleable.SlideMenuStyle_menuBorder:
+			        case R.styleable.SlideMenuStyle_sm_menuBorder:
 			        	TypedValue value = a.peekValue(attr);
 			        	if(value.type == TypedValue.TYPE_DIMENSION)
-			        		menuBorder = a.getDimensionPixelSize(attr, 50);
+			        		mMenuBorder = a.getDimensionPixelSize(attr, 50);
 			        	else
-			        		menuBorderPercent = Math.max(0f, Math.min(1f, a.getFloat(attr, 0f)));			        	
+			        		mMenuBorderPercent = Math.max(0f, Math.min(1f, a.getFloat(attr, 0f)));			        	
 			            break;
-			        case R.styleable.SlideMenuStyle_menuOverDragBorder:
+			        case R.styleable.SlideMenuStyle_sm_menuOverDragBorder:
 			        	value = a.peekValue(attr);
 			        	if(value.type == TypedValue.TYPE_DIMENSION)
-			        		menuOverDragBorder = a.getDimensionPixelSize(attr, 50);
+			        		mMenuOverDragBorder = a.getDimensionPixelSize(attr, 50);
 			        	else
-			        		menuOverDragBorderPercent = Math.max(0f, Math.min(1f, a.getFloat(attr, 0f)));			        	
+			        		mMenuOverDragBorderPercent = Math.max(0f, Math.min(1f, a.getFloat(attr, 0f)));			        	
 			            break;
-			        case R.styleable.SlideMenuStyle_slideRatio:
-			        	slideRatio = a.getFloat(attr, 0.5f);
+			        case R.styleable.SlideMenuStyle_sm_slideRatio:
+			        	mSlideRatio = a.getFloat(attr, 0.5f);
 			            break;	
-			        case R.styleable.SlideMenuStyle_menuShadow:
-			        	menuShadow = a.getDimensionPixelSize(attr, 10);
+			        case R.styleable.SlideMenuStyle_sm_menuShadow:
+			        	mMenuShadow = a.getDimensionPixelSize(attr, 10);
 			        	break;			        
-			        case R.styleable.SlideMenuStyle_dragEdge:
+			        case R.styleable.SlideMenuStyle_sm_dragEdge:
 			        	value = a.peekValue(attr);
 			        	if(value.type == TypedValue.TYPE_DIMENSION)
-			        		dragEdge = a.getDimensionPixelSize(attr, 30);
+			        		mDragEdge = a.getDimensionPixelSize(attr, 30);
 			        	else{
-			        		dragEdge = a.getInt(attr, -1);
-			        		if(dragEdge == -1)
-			        			dragEdge = Integer.MAX_VALUE;
+			        		mDragEdge = a.getInt(attr, -1);
+			        		if(mDragEdge == -1)
+			        			mDragEdge = Integer.MAX_VALUE;
 			        	}
 			            break;
-			        case R.styleable.SlideMenuStyle_touchSlop:
-			        	touchSlop = a.getDimensionPixelSize(attr, 30);
-			            break;    
-			        case R.styleable.SlideMenuStyle_minAlpha:
-			        	minAlpha = Math.max(0f, Math.min(1f, a.getFloat(attr, 0.3f)));
+			        case R.styleable.SlideMenuStyle_sm_touchSlop:
+			        	mTouchSlop = a.getDimensionPixelSize(attr, 30);
+			            break;   
+			        case R.styleable.SlideMenuStyle_sm_maxDim:
+			        	mMaxDim = Math.max(0f, Math.min(1f, a.getFloat(attr, 0f)));
 			            break;  
-			        case R.styleable.SlideMenuStyle_velocitySlop:
-			        	velocitySlop = Math.max(500f, a.getFloat(attr, 500f));
+			        case R.styleable.SlideMenuStyle_sm_velocitySlop:
+			        	mVelocitySlop = Math.max(500f, a.getFloat(attr, 500f));
 			            break; 
-			        case R.styleable.SlideMenuStyle_closeEdge:
+			        case R.styleable.SlideMenuStyle_sm_closeEdge:
 			        	value = a.peekValue(attr);
 			        	if(value.type == TypedValue.TYPE_DIMENSION)
-			        		closeEdge = a.getDimensionPixelSize(attr, 50);
+			        		mCloseEdge = a.getDimensionPixelSize(attr, 50);
 			        	else
-			        		closeEdgePercent = Math.max(0f, Math.min(1f, a.getFloat(attr, 0.75f)));
+			        		mCloseEdgePercent = Math.max(0f, Math.min(1f, a.getFloat(attr, 0.75f)));
 			            break; 
-			        case R.styleable.SlideMenuStyle_animDuration:
-			        	animDuration = Math.max(0, a.getInt(attr, 1000));
+			        case R.styleable.SlideMenuStyle_sm_animDuration:
+			        	mAnimDuration = Math.max(0, a.getInt(attr, 1000));
+			            break; 
+			        case R.styleable.SlideMenuStyle_sm_animInterpolator:
+			        	mInterpolatorId = a.getResourceId(attr, 0);
 			            break; 
 			    }
 			}
 			a.recycle();	
+		}
+		
+		public Interpolator getInterpolator(){
+			if(mInterpolatorId == 0){
+				if(mInterpolator == null)
+					mInterpolator = new SmoothInterpolator();
+			
+				return mInterpolator;
+			}
+			else
+				return AnimationUtils.loadInterpolator(getContext(), mInterpolatorId);			
 		}
 	}
 }

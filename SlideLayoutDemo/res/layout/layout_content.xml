@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/bg_layout">
+    
+    <com.rey.slidelayoutdemo.VerticalButton
+        android:id="@+id/content_bt_left"
+        android:layout_width="48dp"
+        android:layout_height="match_parent"
+        android:paddingTop="8dp"
+        android:paddingBottom="8dp"
+        android:text="Open Left"
+        android:layout_centerVertical="true"
+        android:gravity="bottom|center_horizontal"
+        android:layout_marginTop="48dp"
+        android:layout_marginBottom="48dp"/>
+    
+    <com.rey.slidelayoutdemo.VerticalButton 
+        android:id="@+id/content_bt_right"
+        android:layout_width="48dp"
+        android:layout_height="match_parent"
+        android:paddingLeft="8dp"
+        android:paddingRight="8dp"
+        android:text="Open Right"
+        android:layout_centerVertical="true"
+        android:layout_alignParentRight="true"
+        android:layout_marginTop="48dp"
+        android:layout_marginBottom="48dp"/>
+    
+    <Button 
+        android:id="@+id/content_bt_top"
+        android:layout_width="match_parent"
+        android:layout_height="48dp"
+        android:paddingLeft="8dp"
+        android:paddingRight="8dp"
+        android:text="Open Top"
+        android:layout_centerHorizontal="true"
+        android:layout_marginLeft="48dp"
+        android:layout_marginRight="48dp"/>
+    
+    <Button 
+        android:id="@+id/content_bt_bottom"
+        android:layout_width="match_parent"
+        android:layout_height="48dp"
+        android:paddingLeft="8dp"
+        android:paddingRight="8dp"
+        android:text="Open Bottom"
+        android:layout_centerHorizontal="true"
+        android:layout_alignParentBottom="true"
+        android:layout_marginLeft="48dp"
+        android:layout_marginRight="48dp"/>
+    
+    <TextView 
+        android:id="@+id/content_tv"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_toRightOf="@id/content_bt_left"
+        android:layout_toLeftOf="@id/content_bt_right"
+        android:layout_below="@id/content_bt_top"
+        android:layout_above="@id/content_bt_bottom"
+        android:textStyle="bold"
+        android:textSize="20sp"
+        android:gravity="center"/>
+
+</RelativeLayout>
