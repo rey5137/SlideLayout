@@ -1,83 +1,80 @@
 <!DOCTYPE html>
-<html>
+<html lang="en-us">
   <head>
-    <meta charset='utf-8'>
-    <meta http-equiv="X-UA-Compatible" content="chrome=1">
-    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
-    <link href='https://fonts.googleapis.com/css?family=Architects+Daughter' rel='stylesheet' type='text/css'>
-    <link rel="stylesheet" type="text/css" href="stylesheets/stylesheet.css" media="screen" />
-    <link rel="stylesheet" type="text/css" href="stylesheets/pygment_trac.css" media="screen" />
-    <link rel="stylesheet" type="text/css" href="stylesheets/print.css" media="print" />
-
-    <!--[if lt IE 9]>
-    <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
-    <![endif]-->
-
+    <meta charset="UTF-8">
     <title>Slidelayout by rey5137</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" type="text/css" href="stylesheets/normalize.css" media="screen">
+    <link href='http://fonts.googleapis.com/css?family=Open+Sans:400,700' rel='stylesheet' type='text/css'>
+    <link rel="stylesheet" type="text/css" href="stylesheets/stylesheet.css" media="screen">
+    <link rel="stylesheet" type="text/css" href="stylesheets/github-light.css" media="screen">
   </head>
-
   <body>
-    <header>
-      <div class="inner">
-        <h1>Slidelayout</h1>
-        <h2>An Open Source Android library that allows developers to easily add SlideMenu feature. It supports 4 menu at each side of content view concurrently.</h2>
-        <a href="https://github.com/rey5137/SlideLayout" class="button"><small>View project on</small>GitHub</a>
-      </div>
-    </header>
+    <section class="page-header">
+      <h1 class="project-name">Slidelayout</h1>
+      <h2 class="project-tagline">An Open Source Android library that allows developers to easily add SlideMenu feature. It supports 4 menu at each side of content view concurrently.</h2>
+      <a href="https://github.com/rey5137/SlideLayout" class="btn">View on GitHub</a>
+      <a href="https://github.com/rey5137/SlideLayout/zipball/master" class="btn">Download .zip</a>
+      <a href="https://github.com/rey5137/SlideLayout/tarball/master" class="btn">Download .tar.gz</a>
+    </section>
 
-    <div id="content-wrapper">
-      <div class="inner clearfix">
-        <section id="main-content">
-          <h1>
-<a name="slidelayout" class="anchor" href="#slidelayout"><span class="octicon octicon-link"></span></a>SlideLayout</h1>
+    <section class="main-content">
+      <h1>
+<a id="slidelayout" class="anchor" href="#slidelayout" aria-hidden="true"><span class="octicon octicon-link"></span></a>SlideLayout</h1>
 
 <p>SlideLayout is an Open Source Android library that allows developers to easily add SlideMenu feature. It supports 4 menu at each side of content view concurrently.</p>
 
 <p>A demo app can be found on <a href="https://play.google.com/store/apps/details?id=com.rey.slidelayoutdemo">Google PlayStore</a></p>
 
 <table>
-<thead><tr>
+<thead>
+<tr>
 <th><img src="https://farm4.staticflickr.com/3761/13168480255_e216f067b5.jpg" alt=""></th>
 <th><img src="https://farm8.staticflickr.com/7107/13168733084_075e178019.jpg" alt=""></th>
-</tr></thead>
-<tbody><tr>
+</tr>
+</thead>
+<tbody>
+<tr>
 <td><img src="https://farm8.staticflickr.com/7177/13168469925_7397000a02.jpg" alt=""></td>
 <td><img src="https://farm4.staticflickr.com/3759/13168558143_a95f0d3d31.jpg" alt=""></td>
-</tr></tbody>
-</table><p>I would appreciate any kind of help to improve this library. Thanks</p>
+</tr>
+</tbody>
+</table>
+
+<p>I would appreciate any kind of help to improve this library. Thanks</p>
 
 <h2>
-<a name="usage" class="anchor" href="#usage"><span class="octicon octicon-link"></span></a>Usage</h2>
+<a id="usage" class="anchor" href="#usage" aria-hidden="true"><span class="octicon octicon-link"></span></a>Usage</h2>
 
 <h4>
-<a name="usage-in-xml" class="anchor" href="#usage-in-xml"><span class="octicon octicon-link"></span></a>Usage in XML</h4>
+<a id="usage-in-xml" class="anchor" href="#usage-in-xml" aria-hidden="true"><span class="octicon octicon-link"></span></a>Usage in XML</h4>
 
 <p>You must declare SlideLayoutStyle in styles.xml:</p>
 
-<div class="highlight highlight-xml"><pre>    <span class="nt">&lt;style</span> <span class="na">name=</span><span class="s">"SlideLayoutStyleDemo"</span> <span class="na">parent=</span><span class="s">"@style/SlideLayoutStyleDefault"</span><span class="nt">&gt;</span>
-        <span class="nt">&lt;item</span> <span class="na">name=</span><span class="s">"sl_dragEnable"</span><span class="nt">&gt;</span>true<span class="nt">&lt;/item&gt;</span>
-        <span class="nt">&lt;item</span> <span class="na">name=</span><span class="s">"sl_leftMenuStyle"</span><span class="nt">&gt;</span>@style/LeftSlideMenuStyleDemo<span class="nt">&lt;/item&gt;</span>        
-        <span class="nt">&lt;item</span> <span class="na">name=</span><span class="s">"sl_rightMenuStyle"</span><span class="nt">&gt;</span>@style/RightSlideMenuStyleDemo<span class="nt">&lt;/item&gt;</span>  
-        <span class="nt">&lt;item</span> <span class="na">name=</span><span class="s">"sl_topMenuStyle"</span><span class="nt">&gt;</span>@style/TopSlideMenuStyleDemo<span class="nt">&lt;/item&gt;</span>
-        <span class="nt">&lt;item</span> <span class="na">name=</span><span class="s">"sl_bottomMenuStyle"</span><span class="nt">&gt;</span>@style/BottomSlideMenuStyleDemo<span class="nt">&lt;/item&gt;</span>
-        <span class="nt">&lt;item</span> <span class="na">name=</span><span class="s">"sl_menuStyle"</span><span class="nt">&gt;</span>@style/SlideMenuStyleDemo<span class="nt">&lt;/item&gt;</span>
-    <span class="nt">&lt;/style&gt;</span>
-</pre></div>
+<div class="highlight highlight-xml"><pre>    &lt;<span class="pl-ent">style</span> <span class="pl-e">name</span>=<span class="pl-s"><span class="pl-pds">"</span>SlideLayoutStyleDemo<span class="pl-pds">"</span></span> <span class="pl-e">parent</span>=<span class="pl-s"><span class="pl-pds">"</span>@style/SlideLayoutStyleDefault<span class="pl-pds">"</span></span>&gt;
+        &lt;<span class="pl-ent">item</span> <span class="pl-e">name</span>=<span class="pl-s"><span class="pl-pds">"</span>sl_dragEnable<span class="pl-pds">"</span></span>&gt;true&lt;/<span class="pl-ent">item</span>&gt;
+        &lt;<span class="pl-ent">item</span> <span class="pl-e">name</span>=<span class="pl-s"><span class="pl-pds">"</span>sl_leftMenuStyle<span class="pl-pds">"</span></span>&gt;@style/LeftSlideMenuStyleDemo&lt;/<span class="pl-ent">item</span>&gt;        
+        &lt;<span class="pl-ent">item</span> <span class="pl-e">name</span>=<span class="pl-s"><span class="pl-pds">"</span>sl_rightMenuStyle<span class="pl-pds">"</span></span>&gt;@style/RightSlideMenuStyleDemo&lt;/<span class="pl-ent">item</span>&gt;  
+        &lt;<span class="pl-ent">item</span> <span class="pl-e">name</span>=<span class="pl-s"><span class="pl-pds">"</span>sl_topMenuStyle<span class="pl-pds">"</span></span>&gt;@style/TopSlideMenuStyleDemo&lt;/<span class="pl-ent">item</span>&gt;
+        &lt;<span class="pl-ent">item</span> <span class="pl-e">name</span>=<span class="pl-s"><span class="pl-pds">"</span>sl_bottomMenuStyle<span class="pl-pds">"</span></span>&gt;@style/BottomSlideMenuStyleDemo&lt;/<span class="pl-ent">item</span>&gt;
+        &lt;<span class="pl-ent">item</span> <span class="pl-e">name</span>=<span class="pl-s"><span class="pl-pds">"</span>sl_menuStyle<span class="pl-pds">"</span></span>&gt;@style/SlideMenuStyleDemo&lt;/<span class="pl-ent">item</span>&gt;
+    &lt;/<span class="pl-ent">style</span>&gt;</pre></div>
 
 <h6>
-<a name="attributes" class="anchor" href="#attributes"><span class="octicon octicon-link"></span></a>Attributes</h6>
+<a id="attributes" class="anchor" href="#attributes" aria-hidden="true"><span class="octicon octicon-link"></span></a>Attributes</h6>
 
 <ul>
 <li>
 <code>sl_dragEnable</code>: enable drag menu from the side of content view. If disable, can only open menu by calling function</li>
-</ul><div class="highlight highlight-java"><pre>    <span class="kd">public</span> <span class="kt">void</span> <span class="nf">openLeftMenu</span><span class="o">(</span><span class="kt">boolean</span> <span class="n">animation</span><span class="o">);</span>
+</ul>
 
-    <span class="kd">public</span> <span class="kt">void</span> <span class="nf">openRightMenu</span><span class="o">(</span><span class="kt">boolean</span> <span class="n">animation</span><span class="o">);</span>
+<div class="highlight highlight-java"><pre>    <span class="pl-k">public</span> <span class="pl-k">void</span> openLeftMenu(<span class="pl-k">boolean</span> animation);
 
-    <span class="kd">public</span> <span class="kt">void</span> <span class="nf">openTopMenu</span><span class="o">(</span><span class="kt">boolean</span> <span class="n">animation</span><span class="o">);</span>
+    <span class="pl-k">public</span> <span class="pl-k">void</span> openRightMenu(<span class="pl-k">boolean</span> animation);
 
-    <span class="kd">public</span> <span class="kt">void</span> <span class="nf">openBottomMenu</span><span class="o">(</span><span class="kt">boolean</span> <span class="n">animation</span><span class="o">);</span>
-</pre></div>
+    <span class="pl-k">public</span> <span class="pl-k">void</span> openTopMenu(<span class="pl-k">boolean</span> animation);
+
+    <span class="pl-k">public</span> <span class="pl-k">void</span> openBottomMenu(<span class="pl-k">boolean</span> animation);</pre></div>
 
 <ul>
 <li>
@@ -93,24 +90,25 @@
 
 <p>and some SlideMenuStyle:</p>
 </li>
-</ul><div class="highlight highlight-xml"><pre>    <span class="nt">&lt;style</span> <span class="na">name=</span><span class="s">"SlideMenuStyleDemo"</span> <span class="na">parent=</span><span class="s">"@style/SlideMenuStyleDefault"</span><span class="nt">&gt;</span>
-        <span class="nt">&lt;item</span> <span class="na">name=</span><span class="s">"sm_overDrag"</span><span class="nt">&gt;</span>false<span class="nt">&lt;/item&gt;</span>
-        <span class="nt">&lt;item</span> <span class="na">name=</span><span class="s">"sm_menuBorder"</span><span class="nt">&gt;</span>48dp<span class="nt">&lt;/item&gt;</span>
-        <span class="nt">&lt;item</span> <span class="na">name=</span><span class="s">"sm_menuOverDragBorder"</span><span class="nt">&gt;</span>0dp<span class="nt">&lt;/item&gt;</span>
-        <span class="nt">&lt;item</span> <span class="na">name=</span><span class="s">"sm_slideRatio"</span><span class="nt">&gt;</span>0.5<span class="nt">&lt;/item&gt;</span>
-        <span class="nt">&lt;item</span> <span class="na">name=</span><span class="s">"sm_menuShadow"</span><span class="nt">&gt;</span>8dp<span class="nt">&lt;/item&gt;</span>
-        <span class="nt">&lt;item</span> <span class="na">name=</span><span class="s">"sm_dragEdge"</span><span class="nt">&gt;</span>48dp<span class="nt">&lt;/item&gt;</span>
-        <span class="nt">&lt;item</span> <span class="na">name=</span><span class="s">"sm_touchSlop"</span><span class="nt">&gt;</span>16dp<span class="nt">&lt;/item&gt;</span>
-        <span class="nt">&lt;item</span> <span class="na">name=</span><span class="s">"sm_maxDim"</span><span class="nt">&gt;</span>0.7<span class="nt">&lt;/item&gt;</span>
-        <span class="nt">&lt;item</span> <span class="na">name=</span><span class="s">"sm_velocitySlop"</span><span class="nt">&gt;</span>500<span class="nt">&lt;/item&gt;</span>
-        <span class="nt">&lt;item</span> <span class="na">name=</span><span class="s">"sm_animDuration"</span><span class="nt">&gt;</span>800<span class="nt">&lt;/item&gt;</span>
-        <span class="nt">&lt;item</span> <span class="na">name=</span><span class="s">"sm_closeEdge"</span><span class="nt">&gt;</span>0.75<span class="nt">&lt;/item&gt;</span>
-        <span class="nt">&lt;item</span> <span class="na">name=</span><span class="s">"sm_animInterpolator"</span><span class="nt">&gt;</span>@android:anim/decelerate_interpolator<span class="nt">&lt;/item&gt;</span>
-    <span class="nt">&lt;/style&gt;</span>
-</pre></div>
+</ul>
+
+<div class="highlight highlight-xml"><pre>    &lt;<span class="pl-ent">style</span> <span class="pl-e">name</span>=<span class="pl-s"><span class="pl-pds">"</span>SlideMenuStyleDemo<span class="pl-pds">"</span></span> <span class="pl-e">parent</span>=<span class="pl-s"><span class="pl-pds">"</span>@style/SlideMenuStyleDefault<span class="pl-pds">"</span></span>&gt;
+        &lt;<span class="pl-ent">item</span> <span class="pl-e">name</span>=<span class="pl-s"><span class="pl-pds">"</span>sm_overDrag<span class="pl-pds">"</span></span>&gt;false&lt;/<span class="pl-ent">item</span>&gt;
+        &lt;<span class="pl-ent">item</span> <span class="pl-e">name</span>=<span class="pl-s"><span class="pl-pds">"</span>sm_menuBorder<span class="pl-pds">"</span></span>&gt;48dp&lt;/<span class="pl-ent">item</span>&gt;
+        &lt;<span class="pl-ent">item</span> <span class="pl-e">name</span>=<span class="pl-s"><span class="pl-pds">"</span>sm_menuOverDragBorder<span class="pl-pds">"</span></span>&gt;0dp&lt;/<span class="pl-ent">item</span>&gt;
+        &lt;<span class="pl-ent">item</span> <span class="pl-e">name</span>=<span class="pl-s"><span class="pl-pds">"</span>sm_slideRatio<span class="pl-pds">"</span></span>&gt;0.5&lt;/<span class="pl-ent">item</span>&gt;
+        &lt;<span class="pl-ent">item</span> <span class="pl-e">name</span>=<span class="pl-s"><span class="pl-pds">"</span>sm_menuShadow<span class="pl-pds">"</span></span>&gt;8dp&lt;/<span class="pl-ent">item</span>&gt;
+        &lt;<span class="pl-ent">item</span> <span class="pl-e">name</span>=<span class="pl-s"><span class="pl-pds">"</span>sm_dragEdge<span class="pl-pds">"</span></span>&gt;48dp&lt;/<span class="pl-ent">item</span>&gt;
+        &lt;<span class="pl-ent">item</span> <span class="pl-e">name</span>=<span class="pl-s"><span class="pl-pds">"</span>sm_touchSlop<span class="pl-pds">"</span></span>&gt;16dp&lt;/<span class="pl-ent">item</span>&gt;
+        &lt;<span class="pl-ent">item</span> <span class="pl-e">name</span>=<span class="pl-s"><span class="pl-pds">"</span>sm_maxDim<span class="pl-pds">"</span></span>&gt;0.7&lt;/<span class="pl-ent">item</span>&gt;
+        &lt;<span class="pl-ent">item</span> <span class="pl-e">name</span>=<span class="pl-s"><span class="pl-pds">"</span>sm_velocitySlop<span class="pl-pds">"</span></span>&gt;500&lt;/<span class="pl-ent">item</span>&gt;
+        &lt;<span class="pl-ent">item</span> <span class="pl-e">name</span>=<span class="pl-s"><span class="pl-pds">"</span>sm_animDuration<span class="pl-pds">"</span></span>&gt;800&lt;/<span class="pl-ent">item</span>&gt;
+        &lt;<span class="pl-ent">item</span> <span class="pl-e">name</span>=<span class="pl-s"><span class="pl-pds">"</span>sm_closeEdge<span class="pl-pds">"</span></span>&gt;0.75&lt;/<span class="pl-ent">item</span>&gt;
+        &lt;<span class="pl-ent">item</span> <span class="pl-e">name</span>=<span class="pl-s"><span class="pl-pds">"</span>sm_animInterpolator<span class="pl-pds">"</span></span>&gt;@android:anim/decelerate_interpolator&lt;/<span class="pl-ent">item</span>&gt;
+    &lt;/<span class="pl-ent">style</span>&gt;</pre></div>
 
 <h6>
-<a name="attributes-1" class="anchor" href="#attributes-1"><span class="octicon octicon-link"></span></a>Attributes</h6>
+<a id="attributes-1" class="anchor" href="#attributes-1" aria-hidden="true"><span class="octicon octicon-link"></span></a>Attributes</h6>
 
 <ul>
 <li>
@@ -135,49 +133,50 @@
 <code>sm_animDuration</code>: The duration of opening and closing animation</li>
 <li>
 <code>sm_closeEdge</code>: The distance which menu auto close when stop dragging, can be dimension or percent of menu's size</li>
-</ul><p>Declare the following view on your xml layout:</p>
+</ul>
 
-<div class="highlight highlight-xml"><pre>    <span class="nt">&lt;com.rey.slidelayout.SlideLayout</span> <span class="na">xmlns:android=</span><span class="s">"http://schemas.android.com/apk/res/android"</span>
-        <span class="na">xmlns:app=</span><span class="s">"http://schemas.android.com/apk/res-auto"</span>
-        <span class="na">style=</span><span class="s">"@style/SlideLayoutStyleDemo"</span>
-        <span class="na">android:layout_width=</span><span class="s">"match_parent"</span>
-        <span class="na">android:layout_height=</span><span class="s">"match_parent"</span>
-        <span class="na">app:sl_contentChild=</span><span class="s">"4"</span>
-        <span class="na">app:sl_leftMenuChild=</span><span class="s">"0"</span>
-        <span class="na">app:sl_rightMenuChild=</span><span class="s">"1"</span>
-        <span class="na">app:sl_topMenuChild=</span><span class="s">"2"</span>
-        <span class="na">app:sl_bottomMenuChild=</span><span class="s">"3"</span><span class="nt">&gt;</span>
+<p>Declare the following view on your xml layout:</p>
 
-        <span class="nt">&lt;TextView</span> 
-            <span class="na">android:layout_width=</span><span class="s">"match_parent"</span>
-            <span class="na">android:layout_height=</span><span class="s">"match_parent"</span>
-            <span class="na">android:text=</span><span class="s">"Left Menu"</span><span class="nt">/&gt;</span>
+<div class="highlight highlight-xml"><pre>    &lt;<span class="pl-ent">com</span>.rey.slidelayout.SlideLayout <span class="pl-e">xmlns</span><span class="pl-e">:</span><span class="pl-e">android</span>=<span class="pl-s"><span class="pl-pds">"</span>http://schemas.android.com/apk/res/android<span class="pl-pds">"</span></span>
+        <span class="pl-e">xmlns</span><span class="pl-e">:</span><span class="pl-e">app</span>=<span class="pl-s"><span class="pl-pds">"</span>http://schemas.android.com/apk/res-auto<span class="pl-pds">"</span></span>
+        <span class="pl-e">style</span>=<span class="pl-s"><span class="pl-pds">"</span>@style/SlideLayoutStyleDemo<span class="pl-pds">"</span></span>
+        <span class="pl-e">android</span><span class="pl-e">:</span><span class="pl-e">layout_width</span>=<span class="pl-s"><span class="pl-pds">"</span>match_parent<span class="pl-pds">"</span></span>
+        <span class="pl-e">android</span><span class="pl-e">:</span><span class="pl-e">layout_height</span>=<span class="pl-s"><span class="pl-pds">"</span>match_parent<span class="pl-pds">"</span></span>
+        <span class="pl-e">app</span><span class="pl-e">:</span><span class="pl-e">sl_contentChild</span>=<span class="pl-s"><span class="pl-pds">"</span>4<span class="pl-pds">"</span></span>
+        <span class="pl-e">app</span><span class="pl-e">:</span><span class="pl-e">sl_leftMenuChild</span>=<span class="pl-s"><span class="pl-pds">"</span>0<span class="pl-pds">"</span></span>
+        <span class="pl-e">app</span><span class="pl-e">:</span><span class="pl-e">sl_rightMenuChild</span>=<span class="pl-s"><span class="pl-pds">"</span>1<span class="pl-pds">"</span></span>
+        <span class="pl-e">app</span><span class="pl-e">:</span><span class="pl-e">sl_topMenuChild</span>=<span class="pl-s"><span class="pl-pds">"</span>2<span class="pl-pds">"</span></span>
+        <span class="pl-e">app</span><span class="pl-e">:</span><span class="pl-e">sl_bottomMenuChild</span>=<span class="pl-s"><span class="pl-pds">"</span>3<span class="pl-pds">"</span></span>&gt;
 
-        <span class="nt">&lt;TextView</span> 
-            <span class="na">android:layout_width=</span><span class="s">"match_parent"</span>
-            <span class="na">android:layout_height=</span><span class="s">"match_parent"</span>
-            <span class="na">android:text=</span><span class="s">"Right Menu"</span><span class="nt">/&gt;</span>
+        &lt;<span class="pl-ent">TextView</span> 
+            <span class="pl-e">android</span><span class="pl-e">:</span><span class="pl-e">layout_width</span>=<span class="pl-s"><span class="pl-pds">"</span>match_parent<span class="pl-pds">"</span></span>
+            <span class="pl-e">android</span><span class="pl-e">:</span><span class="pl-e">layout_height</span>=<span class="pl-s"><span class="pl-pds">"</span>match_parent<span class="pl-pds">"</span></span>
+            <span class="pl-e">android</span><span class="pl-e">:</span><span class="pl-e">text</span>=<span class="pl-s"><span class="pl-pds">"</span>Left Menu<span class="pl-pds">"</span></span>/&gt;
 
-        <span class="nt">&lt;TextView</span> 
-            <span class="na">android:layout_width=</span><span class="s">"match_parent"</span>
-            <span class="na">android:layout_height=</span><span class="s">"match_parent"</span>
-            <span class="na">android:text=</span><span class="s">"Top Menu"</span><span class="nt">/&gt;</span>
+        &lt;<span class="pl-ent">TextView</span> 
+            <span class="pl-e">android</span><span class="pl-e">:</span><span class="pl-e">layout_width</span>=<span class="pl-s"><span class="pl-pds">"</span>match_parent<span class="pl-pds">"</span></span>
+            <span class="pl-e">android</span><span class="pl-e">:</span><span class="pl-e">layout_height</span>=<span class="pl-s"><span class="pl-pds">"</span>match_parent<span class="pl-pds">"</span></span>
+            <span class="pl-e">android</span><span class="pl-e">:</span><span class="pl-e">text</span>=<span class="pl-s"><span class="pl-pds">"</span>Right Menu<span class="pl-pds">"</span></span>/&gt;
 
-        <span class="nt">&lt;TextView</span> 
-            <span class="na">android:layout_width=</span><span class="s">"match_parent"</span>
-            <span class="na">android:layout_height=</span><span class="s">"match_parent"</span>
-            <span class="na">android:text=</span><span class="s">"Bottom Menu"</span><span class="nt">/&gt;</span>
+        &lt;<span class="pl-ent">TextView</span> 
+            <span class="pl-e">android</span><span class="pl-e">:</span><span class="pl-e">layout_width</span>=<span class="pl-s"><span class="pl-pds">"</span>match_parent<span class="pl-pds">"</span></span>
+            <span class="pl-e">android</span><span class="pl-e">:</span><span class="pl-e">layout_height</span>=<span class="pl-s"><span class="pl-pds">"</span>match_parent<span class="pl-pds">"</span></span>
+            <span class="pl-e">android</span><span class="pl-e">:</span><span class="pl-e">text</span>=<span class="pl-s"><span class="pl-pds">"</span>Top Menu<span class="pl-pds">"</span></span>/&gt;
 
-        <span class="nt">&lt;TextView</span> 
-            <span class="na">android:layout_width=</span><span class="s">"match_parent"</span>
-            <span class="na">android:layout_height=</span><span class="s">"match_parent"</span>
-            <span class="na">android:text=</span><span class="s">"Content View"</span><span class="nt">/&gt;</span>
+        &lt;<span class="pl-ent">TextView</span> 
+            <span class="pl-e">android</span><span class="pl-e">:</span><span class="pl-e">layout_width</span>=<span class="pl-s"><span class="pl-pds">"</span>match_parent<span class="pl-pds">"</span></span>
+            <span class="pl-e">android</span><span class="pl-e">:</span><span class="pl-e">layout_height</span>=<span class="pl-s"><span class="pl-pds">"</span>match_parent<span class="pl-pds">"</span></span>
+            <span class="pl-e">android</span><span class="pl-e">:</span><span class="pl-e">text</span>=<span class="pl-s"><span class="pl-pds">"</span>Bottom Menu<span class="pl-pds">"</span></span>/&gt;
 
-    <span class="nt">&lt;/com.rey.slidelayout.SlideLayout&gt;</span>
-</pre></div>
+        &lt;<span class="pl-ent">TextView</span> 
+            <span class="pl-e">android</span><span class="pl-e">:</span><span class="pl-e">layout_width</span>=<span class="pl-s"><span class="pl-pds">"</span>match_parent<span class="pl-pds">"</span></span>
+            <span class="pl-e">android</span><span class="pl-e">:</span><span class="pl-e">layout_height</span>=<span class="pl-s"><span class="pl-pds">"</span>match_parent<span class="pl-pds">"</span></span>
+            <span class="pl-e">android</span><span class="pl-e">:</span><span class="pl-e">text</span>=<span class="pl-s"><span class="pl-pds">"</span>Content View<span class="pl-pds">"</span></span>/&gt;
+
+    &lt;/<span class="pl-ent">com</span>.rey.slidelayout.SlideLayout&gt;</pre></div>
 
 <h6>
-<a name="attributes-2" class="anchor" href="#attributes-2"><span class="octicon octicon-link"></span></a>Attributes</h6>
+<a id="attributes-2" class="anchor" href="#attributes-2" aria-hidden="true"><span class="octicon octicon-link"></span></a>Attributes</h6>
 
 <ul>
 <li>
@@ -190,78 +189,72 @@
 <code>sl_topMenuChild</code>:  index of top menu in SlideLayout</li>
 <li>
 <code>sl_bottomMenuChild</code>:  index of bottom menu in SlideLayout</li>
-</ul><p>The order of menu and content view in SlideLayout decides menu will be above (Google style) or below (Facebook style) content view.</p>
+</ul>
+
+<p>The order of menu and content view in SlideLayout decides menu will be above (Google style) or below (Facebook style) content view.</p>
 
 <h4>
-<a name="usage-in-code" class="anchor" href="#usage-in-code"><span class="octicon octicon-link"></span></a>Usage in Code</h4>
+<a id="usage-in-code" class="anchor" href="#usage-in-code" aria-hidden="true"><span class="octicon octicon-link"></span></a>Usage in Code</h4>
 
 <p>Declare SlideLayoutStyle in styles.xml:</p>
 
-<div class="highlight highlight-xml"><pre>    <span class="nt">&lt;style</span> <span class="na">name=</span><span class="s">"SlideLayoutStyleDemo"</span> <span class="na">parent=</span><span class="s">"@style/SlideLayoutStyleDefault"</span><span class="nt">&gt;</span>
-        <span class="nt">&lt;item</span> <span class="na">name=</span><span class="s">"sl_dragEnable"</span><span class="nt">&gt;</span>true<span class="nt">&lt;/item&gt;</span>
-        <span class="nt">&lt;item</span> <span class="na">name=</span><span class="s">"sl_leftMenuStyle"</span><span class="nt">&gt;</span>@style/LeftSlideMenuStyleDemo<span class="nt">&lt;/item&gt;</span>        
-        <span class="nt">&lt;item</span> <span class="na">name=</span><span class="s">"sl_rightMenuStyle"</span><span class="nt">&gt;</span>@style/RightSlideMenuStyleDemo<span class="nt">&lt;/item&gt;</span>  
-        <span class="nt">&lt;item</span> <span class="na">name=</span><span class="s">"sl_topMenuStyle"</span><span class="nt">&gt;</span>@style/TopSlideMenuStyleDemo<span class="nt">&lt;/item&gt;</span>
-        <span class="nt">&lt;item</span> <span class="na">name=</span><span class="s">"sl_bottomMenuStyle"</span><span class="nt">&gt;</span>@style/BottomSlideMenuStyleDemo<span class="nt">&lt;/item&gt;</span>
-        <span class="nt">&lt;item</span> <span class="na">name=</span><span class="s">"sl_menuStyle"</span><span class="nt">&gt;</span>@style/SlideMenuStyleDemo<span class="nt">&lt;/item&gt;</span>
-        <span class="nt">&lt;item</span> <span class="na">name=</span><span class="s">"sl_contentChild"</span><span class="nt">&gt;</span>4<span class="nt">&lt;/item&gt;</span>
-        <span class="nt">&lt;item</span> <span class="na">name=</span><span class="s">"sl_leftMenuChild"</span><span class="nt">&gt;</span>0<span class="nt">&lt;/item&gt;</span>
-        <span class="nt">&lt;item</span> <span class="na">name=</span><span class="s">"sl_rightMenuChild"</span><span class="nt">&gt;</span>1<span class="nt">&lt;/item&gt;</span>
-        <span class="nt">&lt;item</span> <span class="na">name=</span><span class="s">"sl_topMenuChild"</span><span class="nt">&gt;</span>2<span class="nt">&lt;/item&gt;</span>
-        <span class="nt">&lt;item</span> <span class="na">name=</span><span class="s">"sl_bottomMenuChild"</span><span class="nt">&gt;</span>3<span class="nt">&lt;/item&gt;</span>
-    <span class="nt">&lt;/style&gt;</span>
-</pre></div>
+<div class="highlight highlight-xml"><pre>    &lt;<span class="pl-ent">style</span> <span class="pl-e">name</span>=<span class="pl-s"><span class="pl-pds">"</span>SlideLayoutStyleDemo<span class="pl-pds">"</span></span> <span class="pl-e">parent</span>=<span class="pl-s"><span class="pl-pds">"</span>@style/SlideLayoutStyleDefault<span class="pl-pds">"</span></span>&gt;
+        &lt;<span class="pl-ent">item</span> <span class="pl-e">name</span>=<span class="pl-s"><span class="pl-pds">"</span>sl_dragEnable<span class="pl-pds">"</span></span>&gt;true&lt;/<span class="pl-ent">item</span>&gt;
+        &lt;<span class="pl-ent">item</span> <span class="pl-e">name</span>=<span class="pl-s"><span class="pl-pds">"</span>sl_leftMenuStyle<span class="pl-pds">"</span></span>&gt;@style/LeftSlideMenuStyleDemo&lt;/<span class="pl-ent">item</span>&gt;        
+        &lt;<span class="pl-ent">item</span> <span class="pl-e">name</span>=<span class="pl-s"><span class="pl-pds">"</span>sl_rightMenuStyle<span class="pl-pds">"</span></span>&gt;@style/RightSlideMenuStyleDemo&lt;/<span class="pl-ent">item</span>&gt;  
+        &lt;<span class="pl-ent">item</span> <span class="pl-e">name</span>=<span class="pl-s"><span class="pl-pds">"</span>sl_topMenuStyle<span class="pl-pds">"</span></span>&gt;@style/TopSlideMenuStyleDemo&lt;/<span class="pl-ent">item</span>&gt;
+        &lt;<span class="pl-ent">item</span> <span class="pl-e">name</span>=<span class="pl-s"><span class="pl-pds">"</span>sl_bottomMenuStyle<span class="pl-pds">"</span></span>&gt;@style/BottomSlideMenuStyleDemo&lt;/<span class="pl-ent">item</span>&gt;
+        &lt;<span class="pl-ent">item</span> <span class="pl-e">name</span>=<span class="pl-s"><span class="pl-pds">"</span>sl_menuStyle<span class="pl-pds">"</span></span>&gt;@style/SlideMenuStyleDemo&lt;/<span class="pl-ent">item</span>&gt;
+        &lt;<span class="pl-ent">item</span> <span class="pl-e">name</span>=<span class="pl-s"><span class="pl-pds">"</span>sl_contentChild<span class="pl-pds">"</span></span>&gt;4&lt;/<span class="pl-ent">item</span>&gt;
+        &lt;<span class="pl-ent">item</span> <span class="pl-e">name</span>=<span class="pl-s"><span class="pl-pds">"</span>sl_leftMenuChild<span class="pl-pds">"</span></span>&gt;0&lt;/<span class="pl-ent">item</span>&gt;
+        &lt;<span class="pl-ent">item</span> <span class="pl-e">name</span>=<span class="pl-s"><span class="pl-pds">"</span>sl_rightMenuChild<span class="pl-pds">"</span></span>&gt;1&lt;/<span class="pl-ent">item</span>&gt;
+        &lt;<span class="pl-ent">item</span> <span class="pl-e">name</span>=<span class="pl-s"><span class="pl-pds">"</span>sl_topMenuChild<span class="pl-pds">"</span></span>&gt;2&lt;/<span class="pl-ent">item</span>&gt;
+        &lt;<span class="pl-ent">item</span> <span class="pl-e">name</span>=<span class="pl-s"><span class="pl-pds">"</span>sl_bottomMenuChild<span class="pl-pds">"</span></span>&gt;3&lt;/<span class="pl-ent">item</span>&gt;
+    &lt;/<span class="pl-ent">style</span>&gt;</pre></div>
 
 <p>Use the following code:</p>
 
-<div class="highlight highlight-java"><pre>    <span class="n">SlideLayout</span> <span class="n">sl</span> <span class="o">=</span> <span class="k">new</span> <span class="n">SlideLayout</span><span class="o">(</span><span class="n">context</span><span class="o">,</span> <span class="kc">null</span><span class="o">,</span> <span class="n">R</span><span class="o">.</span><span class="na">style</span><span class="o">.</span><span class="na">SlideLayoutStyleDemo</span><span class="o">);</span>
-    <span class="n">sl</span><span class="o">.</span><span class="na">addView</span><span class="o">(</span><span class="n">leftMenuView</span><span class="o">);</span>
-    <span class="n">sl</span><span class="o">.</span><span class="na">addView</span><span class="o">(</span><span class="n">rightMenuView</span><span class="o">);</span>
-    <span class="n">sl</span><span class="o">.</span><span class="na">addView</span><span class="o">(</span><span class="n">topMenuView</span><span class="o">);</span>
-    <span class="n">sl</span><span class="o">.</span><span class="na">addView</span><span class="o">(</span><span class="n">bottomMenuView</span><span class="o">);</span>
-    <span class="n">sl</span><span class="o">.</span><span class="na">addView</span><span class="o">(</span><span class="n">contentView</span><span class="o">);</span>
-</pre></div>
+<div class="highlight highlight-java"><pre>    <span class="pl-smi">SlideLayout</span> sl <span class="pl-k">=</span> <span class="pl-k">new</span> <span class="pl-smi">SlideLayout</span>(context, <span class="pl-c1">null</span>, <span class="pl-smi">R</span><span class="pl-k">.</span><span class="pl-smi">style<span class="pl-k">.</span>SlideLayoutStyleDemo</span>);
+    sl<span class="pl-k">.</span>addView(leftMenuView);
+    sl<span class="pl-k">.</span>addView(rightMenuView);
+    sl<span class="pl-k">.</span>addView(topMenuView);
+    sl<span class="pl-k">.</span>addView(bottomMenuView);
+    sl<span class="pl-k">.</span>addView(contentView);</pre></div>
 
 <p>Note that you have to add view to SlideLayout in correct order specificed in style. If you want to attach SlideLayout to activity, use the followed function instead of addView(contentView)</p>
 
-<div class="highlight highlight-java"><pre>    <span class="kd">public</span> <span class="kt">void</span> <span class="nf">attachToActivity</span><span class="o">(</span><span class="n">Activity</span> <span class="n">activity</span><span class="o">,</span> <span class="kt">boolean</span> <span class="n">attachToWindow</span><span class="o">);</span>
-</pre></div>
+<div class="highlight highlight-java"><pre>    <span class="pl-k">public</span> <span class="pl-k">void</span> attachToActivity(<span class="pl-smi">Activity</span> activity, <span class="pl-k">boolean</span> attachToWindow);</pre></div>
 
 <h2>
-<a name="developed-by" class="anchor" href="#developed-by"><span class="octicon octicon-link"></span></a>Developed By</h2>
+<a id="developed-by" class="anchor" href="#developed-by" aria-hidden="true"><span class="octicon octicon-link"></span></a>Developed By</h2>
 
 <ul>
 <li>Rey Pham - <a href="mailto:pea5137@gmail.com">pea5137@gmail.com</a>
 </li>
-</ul><h2>
-<a name="credits" class="anchor" href="#credits"><span class="octicon octicon-link"></span></a>Credits</h2>
+</ul>
+
+<h2>
+<a id="credits" class="anchor" href="#credits" aria-hidden="true"><span class="octicon octicon-link"></span></a>Credits</h2>
 
 <ul>
 <li>SlideLayout is inspired by <a href="http://cyrilmottier.com/2012/05/22/the-making-of-prixing-fly-in-app-menu-part-1/">Cyril Mottier's post</a>
 </li>
-</ul><h2>
-<a name="contributing" class="anchor" href="#contributing"><span class="octicon octicon-link"></span></a>Contributing</h2>
+</ul>
+
+<h2>
+<a id="contributing" class="anchor" href="#contributing" aria-hidden="true"><span class="octicon octicon-link"></span></a>Contributing</h2>
 
 <p>Want to contribute? You are welcome!</p>
-        </section>
 
-        <aside id="sidebar">
-          <a href="https://github.com/rey5137/SlideLayout/zipball/master" class="button">
-            <small>Download</small>
-            .zip file
-          </a>
-          <a href="https://github.com/rey5137/SlideLayout/tarball/master" class="button">
-            <small>Download</small>
-            .tar.gz file
-          </a>
+      <footer class="site-footer">
+        <span class="site-footer-owner"><a href="https://github.com/rey5137/SlideLayout">Slidelayout</a> is maintained by <a href="https://github.com/rey5137">rey5137</a>.</span>
 
-          <p class="repo-owner"><a href="https://github.com/rey5137/SlideLayout"></a> is maintained by <a href="https://github.com/rey5137">rey5137</a>.</p>
+        <span class="site-footer-credits">This page was generated by <a href="https://pages.github.com">GitHub Pages</a> using the <a href="https://github.com/jasonlong/cayman-theme">Cayman theme</a> by <a href="https://twitter.com/jasonlong">Jason Long</a>.</span>
+      </footer>
 
-          <p>This page was generated by <a href="https://pages.github.com">GitHub Pages</a> using the Architect theme by <a href="https://twitter.com/jasonlong">Jason Long</a>.</p>
-        </aside>
-      </div>
-    </div>
+    </section>
 
   
   </body>
 </html>
+
